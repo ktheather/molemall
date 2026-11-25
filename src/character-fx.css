@@ -308,17 +308,17 @@
 }
 .mfx-layers .mfx-z-drop { filter: drop-shadow(0 0 22px #ff354d); }
 
-.mfx-l.mfx-battle-root { --mfx-origin-x: 30%; --mfx-direction: -1; --mfx-reach: clamp(85px, 23vw, 335px); }
-.mfx-l.mfx-battle-root .mfx-layers { --mfx-origin-x: 38%; }
-.mfx-layers .mfx-poison { filter: drop-shadow(0 0 20px #91ff1f); }
-.mfx-l.mfx-battle-root .mfx-poison { scale: -1 1; }
-.mfx-layers .mfx-poison-skull { left: calc(var(--mfx-origin-x) + var(--mfx-direction) * var(--mfx-reach)); top: 40%; filter: drop-shadow(0 0 23px #b342ff); }
-.mfx-l:is(.mfx-phase-attack,.mfx-phase-special) .mfx-poison-skull { animation: mfx-skull-rises var(--mfx-duration) both; }
-@keyframes mfx-skull-rises {
-  0%,52% { opacity: 0; transform: translate(-50%,-9%) scale(.35); }
-  75%,87% { opacity: .96; }
-  100% { opacity: 0; transform: translate(-50%,-82%) scale(1.2); }
+#arenaBossArt.mfx-l.mfx-battle-root { --mfx-origin-x: 30%; --mfx-direction: -1; --mfx-reach: clamp(85px, 23vw, 335px); }
+#arenaBossArt.mfx-l.mfx-battle-root .mfx-layers { --mfx-origin-x: 38%; }
+/* Purple skull vapor is part of the travelling green poison silhouette. */
+.mfx-layers .mfx-poison {
+  top: 25%;
+  height: calc(var(--mfx-prop-size) * 1.35);
+  filter: drop-shadow(0 0 12px #91ff1f) drop-shadow(0 -10px 18px #a743ff94);
 }
+#arenaBossArt.mfx-l.mfx-battle-root .mfx-poison { scale: -1 1; }
+.mfx-l.mfx-phase-special .mfx-poison { filter: drop-shadow(0 0 24px #a2ff23) drop-shadow(0 -14px 22px #a743ffc4); }
+
 .mfx-henry:is(.mfx-phase-attack,.mfx-phase-special) .mfx-henry-glasses {
   width: calc(var(--mfx-prop-size) * .55); height: calc(var(--mfx-prop-size) * .55);
   animation: mfx-discard-glasses var(--mfx-duration) both;
@@ -362,8 +362,8 @@
   .mfx-andrew.mfx-phase-idle > .mfx-base-pose { animation: none !important; }
   .mfx-z.mfx-phase-attack .mfx-pose-attack { animation: none !important; opacity: 1; }
   .mfx-z.mfx-phase-attack > .mfx-base-pose { visibility: hidden; }
-  .mfx-phase-attack .mfx-layers :is(.mfx-travel,.mfx-swing,.mfx-z-quill,.mfx-poison-skull),
-  .mfx-phase-special .mfx-layers :is(.mfx-travel,.mfx-drop,.mfx-grow,.mfx-z-circle,.mfx-poison-skull) {
+  .mfx-phase-attack .mfx-layers :is(.mfx-travel,.mfx-swing,.mfx-z-quill),
+  .mfx-phase-special .mfx-layers :is(.mfx-travel,.mfx-drop,.mfx-grow,.mfx-z-circle) {
     opacity: 1; animation: none !important;
   }
   .mfx-henry.mfx-phase-special .mfx-pose-attack { display: none; }

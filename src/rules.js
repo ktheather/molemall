@@ -1,5 +1,6 @@
 // 두더지몰 핵심 규칙 (UI 없음 — 순수 계산)
 import { effectiveStats } from './effects.js';
+import { LOUIS_DOMINANCE_THRESHOLD, LOUIS_POISON_ATTACK } from './louis-poison.js';
 
 export const rollDie = () => 1 + Math.floor(Math.random() * 6);
 
@@ -28,8 +29,14 @@ export function resolveAttack(attacker, defender, d1, d2, defenderBonus = null, 
   // 카드 특이사항(숨김 효과): 상대에 따라 능력치가 바뀐다
   const ctx = { d1, d2, lastOpponentDiceSum: opts.lastOpponentDiceSum };
   const A = effectiveStats(attacker, defender, ctx), D = effectiveStats(defender, attacker);
-  if (Number.isFinite(opts.forceAttackStat)) A.stats.attack = Math.max(0,opts.forceAttackStat);
   const defDominance = D.stats.dominance * (defenderBonus?.dominanceMul ?? 1);
+  const louisPoison = attacker.id === 'l' && defDominance >= LOUIS_DOMINANCE_THRESHOLD
+    && !Number.isFinite(opts.forceAttackStat);
+  if (louisPoison) {
+    A.triggered.push({ stat: 'attack', from: A.stats.attack, to: LOUIS_POISON_ATTACK });
+    A.stats.attack = LOUIS_POISON_ATTACK;
+  }
+  if (Number.isFinite(opts.forceAttackStat)) A.stats.attack = Math.max(0, opts.forceAttackStat);
   const rawAttack  = (A.stats.attack + b.sum) * b.attackMul;
   const effAttack  = Math.max(0, rawAttack - defDominance);
   const effEmpathy = A.stats.empathy * b.empathyMul;
@@ -37,7 +44,7 @@ export function resolveAttack(attacker, defender, d1, d2, defenderBonus = null, 
   const damage     = Math.max(0, effAttack - effDefense);
   return {
     ...b, rawAttack, defDominance, effAttack, effEmpathy, effDefense, damage,
-    attackerStats: A.stats, defenderStats: D.stats,
+    attackerStats: A.stats, defenderStats: D.stats, louisPoison,
     triggered: [...A.triggered.map(t => ({ ...t, who: 'attacker' })), ...D.triggered.map(t => ({ ...t, who: 'defender' }))],
   };
 }

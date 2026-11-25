@@ -9,14 +9,14 @@ export const CHARACTER_FX = Object.freeze({
   eden: { label: '이든', accent: '#e5b648', prop: '👑', idle: '임원의 여유롭고 단정한 대기', attack: '손짓으로 상대를 밀어붙임', special: '금빛 권위 오라', flow: ['여유로운 임원', '압박 손짓', '황금빛 권위'] },
   ian: { label: '이안', accent: '#62c9ff', prop: '🚩', idle: '안내 깃발을 살랑살랑', attack: '계산기 투척 → 깃발 삿대질 → 사자후', special: '주사위 합 7 이상일 때 출격', flow: ['깃발 살랑', '계산기 투척·사자후', '조건 충족 출격'] },
   kade: { label: '케이드', accent: '#92ddff', prop: '🦴', idle: '마시마로를 닮은 둥글고 나른한 수비 자세', attack: '마시마로 외형을 유지한 채 골육봉을 크게 휘둘러 타격', special: '더블 주사위일 때 이중 방어막', flow: ['나른한 수비', '골육봉 휘두르기', '더블 이중 방어막'] },
-  olivia: { label: '올리비아', accent: '#ff96c0', prop: '🎂', idle: '기존 원화 외형 그대로 축하 인사를 건네기', attack: '상대를 축하하며 케이크와 꽃가루를 날림', special: '키미: 하트 연기 / 션: 표창 안광·거대화·분노', flow: ['반갑게 축하하기', '케이크·꽃가루 축하', '키미 하트 / 션 분노'] },
+  olivia: { label: '올리비아', accent: '#ff96c0', prop: '🎂', idle: '파티 모자를 쓰고 작은 케이크 옆에서 꾸벅꾸벅', attack: '키미에게는 분홍 하트 연기, 션에게는 거대화와 별빛 안광', special: '키미: 하트 연기 / 션: 표창 안광·거대화·분노', flow: ['반갑게 축하하기', '케이크·꽃가루 축하', '키미 하트 / 션 분노'] },
   jacob: { label: '제이콥', accent: '#fa6a63', prop: '🤡', idle: '따봉하며 광대 인형 둘이 머리 주변 회전', attack: '일반 공격은 따봉 자세 유지', special: 'ㅌ 초성 상대: 공포 광대 페이드 → 표창 안광 → 공격력 50', flow: ['인형 둘이 빙글빙글', '공포 광대 페이드', '표창 안광·공격 50'] },
   sally: { label: '샐리', accent: '#f4d36f', prop: '💎', idle: '두더지 중 가장 부유한 샐리. 황금 금고에서 펜과 수첩을 들고 대기', attack: '펜·수첩을 내려놓고 거대한 망치를 꺼내 6의 공격을 연속으로 분배', special: '4회 이상 타격하면 다이아몬드가 떨어져 추가 피해 6', flow: ['무작위 2~6회 연속 타격 · 합계 6', '4회 이상 타격 여부 확인', '다이아몬드 추가 공격 6'] },
   aiden: { label: '에이든', accent: '#a78afb', prop: '🪼', idle: '꽃 모양 이펙트가 주위를 둥실둥실', attack: '초롱초롱한 눈으로 가느다란 막대를 물고 비눗방울을 후후 불기', special: '주사위 합 10 이상: 대왕 해파리 감전 공격력 30 · 이후 3턴간 2~5 피해', flow: ['주변에 꽃 이펙트', '가느다란 막대 · 비눗방울', '해파리 소환 · 감전'] },
   hailey: { label: '헤일리', accent: '#c8d9db', prop: '🍎', idle: '은사과를 쓰담쓰담', attack: '안경을 끼면서 은사과를 집어던짐', special: '뒤 배경에 사과나무가 자라남', flow: ['은사과 쓰담', '안경 장착 · 은사과 투척', '사과나무 성장'] },
   henry: { label: '헨리', accent: '#f0c68a', prop: '✨', idle: '검정 후드티와 안경으로 여유롭게 대기', attack: '안경을 집어던지고 후드티 차림으로 빠르게 돌진', special: '더블 주사위 · 민소매와 털코트로 갈아입으며 후광 발동. 상대 공격력 1', flow: ['검정 후드티 기본 상태', '더블 주사위 · 후광', '민소매 · 털코트 진화'] },
   z: { label: 'Z', accent: '#ff594e', prop: '🦡', idle: '가시 없이 느긋하게 누운 벌꿀오소리', attack: '몸에서 가시가 자라나 사방으로 발사. 두더지 상대 공격력 16', special: '더블 주사위 합 6 이하 · 하늘에 소환진이 열리고 광전사 헤더가 낙하', flow: ['오소리 가시 무장', '두더지 상대 16 공격', '더블 합 6 이하: 헤더 출현'] },
-  l: { label: 'L', accent: '#a66cfc', prop: '🐍', idle: '흰 두더지 후드로 뱀 얼굴을 가리고 혀만 낼름', attack: '뱀 얼굴을 드러내고 형광 녹색 독을 발사. 보라색 해골 연기가 피어오름', special: 'ㅌ 이외 두더지 상대 공격 10 · 공감 5', flow: ['두더지 탈 위장', '뱀의 독기와 시선', '조건 충족 시 공격 10 · 공감 5'] },
+  l: { label: '루이스', accent: '#a66cfc', prop: '🐍', idle: '흰 두더지 후드로 뱀 얼굴을 가리고 혀만 낼름', attack: '뱀 얼굴을 드러내고 형광 녹색 독을 발사. 보라색 해골 연기가 피어오름', special: '상대 지배력 9 이상 · 공격력 30 · 휴식 2턴 · 3턴간 5~10 중독 피해', flow: ['두더지 탈 위장', '뱀의 독기와 시선', '조건 충족 시 공격 10 · 공감 5'] },
   andrew: { label: '앤드류', accent: '#f8a93c', prop: '⚽', idle: '경례 → 팔굽혀펴기 얼차려 → 차렷 자세 반복', attack: '빵빠레와 불꽃 축구 슛', special: '직전 상대와 주사위 합이 같으면 공격력 20. 포상 플래카드가 펼쳐짐', flow: ['충성 · 얼차려 · 차렷', '빵빠레와 불꽃 슛', '플랜카드 전개'] }
 });
 const effectAsset = name => `../assets/fx/plush/${name}.webp`;
@@ -58,7 +58,6 @@ export function animationModeFor(mole, { phase = 'attack', opponentName = '', di
   if (id === 'harper' && doubles) return 'special';
   if (id === 'henry' && doubles) return 'special';
   if (id === 'andrew' && diceSum !== null && diceSum === previousDiceSum) return 'special';
-  if (id === 'l' && !startsWithTie(opponentName)) return 'special';
   return 'attack';
 }
 function layers(id) {
@@ -76,7 +75,7 @@ function layers(id) {
   if(id==='hailey') extra += `${prop('apple','mfx-silver-apple')}${prop('glasses','mfx-glasses')}${prop('apple','mfx-apple-throw mfx-travel')}${prop('tree','mfx-apple-tree mfx-grow')}`;
   if(id==='henry') extra += `${pose('attack','henry-charge')}${pose('special','henry-coat')}${prop('glasses','mfx-henry-glasses mfx-travel')}<span class="mfx-henry-halo" aria-hidden="true"></span>`;
   if(id==='z') extra += `${pose('attack','z-spikes')}${Array.from({length:12},(_,i)=>`<span class="mfx-quill-track" style="--angle:${i*30}deg">${prop('quill','mfx-z-quill')}</span>`).join('')}${prop('summon-circle','mfx-z-circle')}${prop('header-berserker','mfx-z-drop mfx-drop')}`;
-  if(id==='l') extra += `${pose('attack','l-reveal')}${prop('poison','mfx-poison mfx-travel')}${prop('skull','mfx-poison-skull')}`;
+  if(id==='l') extra += `${pose('attack','l-reveal')}${prop('louis-venom','mfx-poison mfx-travel')}`;
   if(id==='andrew') extra += `${pose('salute','andrew-salute')}${pose('discipline','andrew-discipline')}${pose('attack','andrew-kick')}${prop('ball','mfx-andrew-kick mfx-travel')}${prop('trumpet','mfx-andrew-fanfare')}${prop('banner','mfx-andrew-banner mfx-grow')}`;
   if(!extra) extra += '<div class="mfx-magic" aria-hidden="true">✧ ✨ ✧</div>';
   return `<div class="mfx-layers" aria-hidden="true">${extra}<span class="mfx-attack-swish"></span></div>`;

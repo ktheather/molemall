@@ -1,52 +1,104 @@
 /** MOLEMALL 3D collectible cards. All live stats and abilities come from data/cards.json. */
-import { CHARACTER_FX, createScene, $escape, playCharacterSound } from './character-fx.js?v=character-refresh-20261125';
+import { CHARACTER_FX, createScene, $escape, playCharacterSound } from './character-fx.js?v=louis-20261126';
 const $ = s => document.querySelector(s);
 const esc = $escape;
-const artBase = '../assets/moles/detail/';
 const modes = {idle:'기본 상태',attack:'공격 연출',special:'특수 연출'};
+const phases = Object.keys(modes);
 const statTypes = [['attack','⚔️ 공격'],['defense','🛡 방어'],['dominance','👑 지배'],['empathy','💗 공감']];
-const revisedArt = {
-  z: [['z-idle'], ['z-spikes','quill'], ['header-berserker','summon-circle']],
-  l: [['l-idle'], ['l-reveal','poison','skull'], ['l-reveal','skull']],
+const rosterArt = {
   header: [['header-idle'], ['header-berserker','money'], ['header-berserker','coin']],
+  kimi: [['@kimi','camera'], ['@kimi','camera'], ['@kimi','guitar']],
+  harper: [['harper-typing'], ['harper-charge','sun','keycaps'], ['harper-charge','sun','keycaps']],
+  eden: [['@eden'], ['@eden','crown'], ['@eden','crown']],
+  hailey: [['@hailey','apple'], ['@hailey','apple','glasses'], ['@hailey','tree']],
   andrew: [['andrew-salute','andrew-discipline','andrew-idle'], ['andrew-kick','ball'], ['andrew-kick','banner']],
+  ian: [['@ian','flag'], ['@ian','calculator','flag'], ['@ian','flag']],
+  kade: [['@kade'], ['@kade','bone'], ['@kade','shield']],
+  olivia: [['olivia-nap'], ['@olivia'], ['@olivia']],
+  jacob: [['jacob-portrait','@toy-red','@toy-green'], ['jacob-portrait'], ['jacob-terror','@ghost-clown']],
   aiden: [['aiden-idle'], ['aiden-bubbles'], ['aiden-summon']],
   sally: [['sally-idle'], ['sally-swing','hammer'], ['sally-drop','diamond']],
+  z: [['z-idle'], ['z-spikes','quill'], ['header-berserker','summon-circle']],
+  l: [['l-idle'], ['l-reveal','louis-venom'], ['l-reveal','louis-venom']],
   henry: [['henry-idle'], ['henry-charge','glasses'], ['henry-coat']]
 };
+const rows = Object.keys(rosterArt);
 const revisedFlow = {
   z: ['가시 없이 대기','가시 성장·사방 발사','소환진·광전사 헤더'],
-  l: ['후드 속 혀만 낼름','형광 녹색 독 분사','보라색 해골 연기'],
+  l: ['후드 속 혀만 낼름','독에서 피어나는 해골 연기','지배 9↑ · 휴식 2턴 · 중독 3턴'],
   header: ['돼지 저금통 쓰담','찢어진 정장·돈다발','분노 오라·강타'],
   henry: ['후드티·안경','안경 투척·돌진','민소매·털코트 변신'],
   sally: ['황금 금고·펜과 수첩','거대 망치 연속 타격','다이아몬드 낙하']
 };
-const sprite = (name, className) => `<img class="${className}" src="../assets/fx/plush/${name}.webp" alt="">`;
-const heroArt = m => revisedArt[m.id]
- ? `../assets/fx/plush/${m.id}-idle.webp`
- : art(m.id,'hero');
+const portraitArt = {
+  olivia: 'olivia-portrait', sally: 'sally-portrait', jacob: 'jacob-portrait',
+  harper: 'harper-portrait'
+};
+const portraitUsesFrameArt = new Set(['sally', 'harper', 'olivia', 'jacob']);
+const spritePath = name => {
+  if (name.startsWith('@')) {
+    const asset = name.slice(1);
+    return `../assets/${['toy-red','toy-green','ghost-clown'].includes(asset) ? 'fx' : 'moles/plush'}/${asset}.png`;
+  }
+  if (['harper-portrait','harper-typing','harper-charge','sally-portrait','olivia-nap','olivia-portrait','jacob-portrait','jacob-terror'].includes(name)) {
+    return `../assets/cards/${name}.webp`;
+  }
+  return `../assets/fx/plush/${name}.webp`;
+};
+function portraitSource(m) {
+ const image = portraitArt[m.id] || rosterArt[m.id]?.[0]?.[0];
+ return image ? spritePath(image) : `../${m.image}`;
+}
+const sprite = (name, className) => name === 'keycaps'
+ ? `<span class="${className} mfx-keycap-cloud" aria-hidden="true"><i>Esc</i><i>Q</i><i>Ctrl</i></span>`
+ : `<img class="${className}" src="${spritePath(name)}" alt="">`;
 
-function compose(names) {
- return `<span class="mfx-composition">${names.map((name, index) =>
-  sprite(name, index ? 'mfx-composite-prop' : 'mfx-composite-actor')).join('')}</span>`;
+function paintedBackdrop(id, state) {
+ const index = rows.indexOf(id);
+ if (index < 0) return '';
+ const sheet = Math.floor(index / 5) + 1;
+ const y = index % 5 * 25;
+ const x = phases.indexOf(state) * 50;
+ return `<span class="mfx-painted-background" aria-hidden="true"><span style="--mfx-atlas:url('../assets/cards/backdrops-${sheet}.webp');--mfx-atlas-x:${x}%;--mfx-atlas-y:${y}%"></span></span>`;
+}
+
+function portrait(m, alt) {
+ const cls = portraitUsesFrameArt.has(m.id) ? 'mfx-portrait-art' : 'mfx-portrait-sprite';
+ return `${paintedBackdrop(m.id,'idle')}<img class="${cls}" src="${esc(portraitSource(m))}" alt="${esc(alt)}">`;
+}
+
+function compose(id, state, names) {
+ return `<span class="mfx-composition" data-elements="${names.length}">${paintedBackdrop(id,state)}
+  ${names.map((name, index) => sprite(name, index ? 'mfx-composite-prop' : 'mfx-composite-actor')).join('')}</span>`;
+}
+
+const oliviaMatchups = [['kimi','키미','분홍 하트 연기'],['sean','션','거대화·별빛 안광']];
+function matchupArt(key, label, effect) {
+ return `<span class="mfx-olivia-matchup">
+  <img src="../assets/cards/olivia-${key}.webp" alt="${label} 상대 · ${effect}">
+  <b>vs ${label} · ${effect}</b></span>`;
 }
 
 function sceneArt(m, state) {
- const frames = revisedArt[m.id];
- if (!frames) return `<img src="${art(m.id, state === 'special' ? 'flow' : state)}" alt="">`;
- if (state === 'special') {
-  return `<span class="mfx-flow-art">${frames.map(frame => compose(frame)).join('')}</span>`;
+ const frames = rosterArt[m.id];
+ if (!frames) return `<span class="mfx-composition"><img src="${esc(portraitSource(m))}" alt=""></span>`;
+ if (m.id === 'olivia' && state !== 'idle') {
+  const art = oliviaMatchups.map(args => matchupArt(...args)).join('');
+  if (state === 'attack') return `<span class="mfx-matchup-scenes">${art}</span>`;
+  return `<span class="mfx-flow-art">${compose(m.id,'idle',frames[0])}${art}</span>`;
  }
- return compose(frames[state === 'idle' ? 0 : 1]);
+ if (state === 'special') {
+  return `<span class="mfx-flow-art">${frames.map((frame,i) => compose(m.id,phases[i],frame)).join('')}</span>`;
+ }
+ return compose(m.id,state,frames[phases.indexOf(state)]);
 }
 let all=[],selected=null,mode='idle',opponent='태티서',beforeFocus=null;
 const layer=document.createElement('div'); layer.id='mfx-detail-screen'; layer.hidden=true;layer.setAttribute('role','presentation');document.body.append(layer);
-const art=(id,part)=>`${artBase}${encodeURIComponent(id)}-${part}.webp?v=z-l-boss-final-20261124`;
 const heading=m=>m.nickname||m.trait||'두더지 카드';
 const statBadges=m=>statTypes.map(([key,label])=>`<span class="mfx-live-stat">${label} <b>${esc(m.stats?.[key]??'—')}</b></span>`).join('');
 const rules = m => m.secret || '별도 특수능력 없음';
 function tile(m) {
- return `<div class="mfx-cover ${m.id==='sally'?'mfx-sally-backdrop':''}"><img class="mfx-d3-thumb" src="${heroArt(m)}" alt="${esc(m.name)} 3D 카드 일러스트" loading="lazy"></div>
+ return `<div class="mfx-cover">${portrait(m,`${m.name} 상반신`)}</div>
  <div class="mfx-mini-details"><div class="mfx-mini-name">${esc(m.name)}<span class="mfx-mini-nick">${esc(heading(m))}</span></div><div class="mfx-mini-stats">${statBadges(m)}</div><div class="mfx-mini-trait">${esc(CHARACTER_FX[m.id]?.idle||heading(m))}</div></div>`;
 }
 function decorate() {
@@ -63,17 +115,25 @@ function decorate() {
 function renderMode() {
  if(!selected||layer.hidden)return;
  const f=CHARACTER_FX[selected.id]||{idle:'기본 대기',attack:'공격',special:'특수 연출'};
- const mount=$('#mfx-stage-mount');if(mount)mount.innerHTML=createScene(selected,{mode,opponentName:opponent});
+ const mount=$('#mfx-stage-mount');
+ if (mount) {
+  const previewMode = selected.id==='olivia' && mode!=='idle' ? 'special' : mode;
+  mount.innerHTML=createScene(selected,{mode:previewMode,opponentName:opponent});
+  mount.firstElementChild.insertAdjacentHTML('afterbegin', paintedBackdrop(selected.id,mode));
+ }
  const title=$('#mfx-state-caption');if(title)title.textContent=`${modes[mode]} · ${f[mode]||''}`;
  layer.querySelectorAll('.mfx-d3-scene').forEach(button =>
   button.classList.toggle('mfx-active-scene', button.dataset.state === mode));
  layer.querySelectorAll('.mfx-modes button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
 }
 function open(m) {
- selected=m; mode='idle';opponent=m.id==='olivia'?'션':m.id==='jacob'?'태티서':m.id==='z'?'L':m.id==='l'?'헤더':'코끼리';
+ selected=m; mode='idle';opponent=m.id==='olivia'?'션':m.id==='jacob'?'태티서':m.id==='z'?'루이스':m.id==='l'?'헤더':'코끼리';
  beforeFocus=document.activeElement;
  const f = CHARACTER_FX[m.id] || {idle:'기본 상태', attack:'일반 공격', special:'특수 연출'};
- const flow = revisedFlow[m.id] || f.flow || Object.values(modes);
+ const flow = m.id==='olivia' ? ['파티장 대기','키미 · 분홍 하트 연기','션 · 거대화와 안광']
+  : revisedFlow[m.id] || f.flow || Object.values(modes);
+ const opponents = m.id==='olivia' ? oliviaMatchups.map(([,name])=>name)
+  : [...new Set(['루이스','태티서','키미','션','코끼리','헤더',...all.map(x=>x.name)])];
  const stateCards = Object.entries(modes).map(([state,label]) => `
    <button class="mfx-d3-scene" type="button" data-state="${state}"
      aria-label="${label} 애니메이션 보기" aria-controls="mfx-live-preview">
@@ -86,13 +146,13 @@ function open(m) {
        : `<span class="mfx-d3-scene-caption">${esc(f[state])}</span>`}
    </button>`).join('');
  layer.innerHTML=`<section class="mfx-modal mfx-three-d-modal" data-character="${esc(m.id)}"
-   data-revised-art="${Boolean(revisedArt[m.id])}" role="dialog" aria-modal="true"
+    role="dialog" aria-modal="true"
    aria-labelledby="mfx-detail-title" style="--mfx-accent:${f.accent || '#d5a66b'}">
  <button class="mfx-close-modal" type="button" aria-label="팝업 닫기">✕ 닫기</button>
  <div class="mfx-d3-layout">
-  <article class="mfx-d3-left">
+  <article class="mfx-d3-left${m.tags?.includes('임원') ? ' mfx-executive' : ''}">
    <div class="mfx-d3-portrait">
-    <img src="${heroArt(m)}" alt="${esc(m.name)}">
+    ${portrait(m,`${m.name} 상반신`)}
     <div class="mfx-d3-nameplate">
      <span class="mfx-d3-seal" aria-hidden="true">✦</span>
      <h2 id="mfx-detail-title">${esc(m.name)}</h2><em>${esc(heading(m))}</em>
@@ -110,7 +170,7 @@ function open(m) {
  <details class="mfx-preview-panel" id="mfx-live-preview">
   <summary>전투 애니메이션 미리보기</summary>
   <div class="mfx-preview-controls">
-   <label>상대 <select id="mfx-target-select">${[...new Set(['L','태티서','키미','션','코끼리','헤더',...all.map(x=>x.name)])].map(t=>`<option value="${esc(t)}" ${t===opponent?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
+   <label>상대 <select id="mfx-target-select">${opponents.map(t=>`<option value="${esc(t)}" ${t===opponent?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
    <div class="mfx-modes">${Object.entries(modes).map(([state,label]) =>
     `<button type="button" data-mode="${state}" aria-pressed="false">${label}</button>`).join('')}</div>
   </div>

@@ -1,0 +1,12 @@
+.card.gold, .mfx-executive { position: relative; }
+.card.gold::after, .mfx-executive::after {
+  content: '';
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  border: 19px solid transparent;
+  border-image: url('../assets/cards/executive-laurel.svg') 49 / 23px / 0 round;
+  pointer-events: none;
+}
+.mfx-executive { border-radius: 17px; box-shadow: 0 0 16px #efb34b50; }
+.mfx-executive::after { border-image-width: 30px; }

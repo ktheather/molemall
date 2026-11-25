@@ -139,46 +139,127 @@
   color: #ffe8b5;
 }
 .mfx-d3-special-note { color: #ffe7ca; font-weight: 650; }
-.mfx-flow-art, .mfx-composition { display: grid; min-width: 0; min-height: 0; }
-.mfx-flow-art { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.mfx-flow-art > .mfx-composition + .mfx-composition { border-left: 1px solid #d49b653d; }
-.mfx-composition {
-  grid-auto-columns: minmax(0, 1fr);
-  grid-auto-flow: column;
-  justify-content: center;
-  gap: 2%;
-  padding: 7px 8px 3px;
+/* Atlas plates were painted in three columns of five landscape scenes.
+   Keep each plate's ratio as it fills its own viewport. */
+.mfx-painted-background {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+  pointer-events: none;
 }
-.mfx-composition:has(.mfx-composite-prop) { grid-auto-columns: minmax(0, 27%); }
+.mfx-painted-background > span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100cqw, calc(100cqh * 1.7778));
+  aspect-ratio: 16 / 9;
+  transform: translate(-50%, -50%);
+  background-image: var(--mfx-atlas);
+  background-size: 300% 500%;
+  background-position: var(--mfx-atlas-x) var(--mfx-atlas-y);
+}
+.mfx-painted-background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #240d1620 30%, #210d1b58 100%);
+}
+.mfx-d3-portrait > img, #grid .mfx-cover > img {
+  position: absolute;
+  inset: 0;
+  margin: auto !important;
+  max-width: none;
+  max-height: none;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  object-position: center;
+}
+.mfx-d3-portrait > .mfx-portrait-sprite, #grid .mfx-cover > .mfx-portrait-sprite {
+  inset: 3% 0 auto;
+  width: 100% !important;
+  height: 182% !important;
+  object-position: center top;
+  filter: drop-shadow(0 5px 9px #200d1cb0);
+}
+.mfx-d3-portrait > .mfx-portrait-art, #grid .mfx-cover > .mfx-portrait-art {
+  object-fit: contain;
+  object-position: center;
+}
+[data-character="sally"] .mfx-d3-portrait > .mfx-portrait-art,
+#grid [data-id="sally"] .mfx-cover > .mfx-portrait-art {
+  object-fit: cover;
+  object-position: center 42%;
+}
+[data-character="harper"] .mfx-d3-portrait > .mfx-portrait-art { object-fit: contain; }
+.mfx-d3-nameplate { z-index: 2; }
+.mfx-flow-art, .mfx-composition, .mfx-matchup-scenes { display: grid; min-width: 0; min-height: 0; height: 100%; }
+.mfx-flow-art { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mfx-matchup-scenes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.mfx-flow-art > * + *, .mfx-olivia-matchup + .mfx-olivia-matchup { border-left: 1px solid #d49b656e; }
+.mfx-composition {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  align-items: end;
+  padding: 6px 6% 3px;
+}
+.mfx-composition[data-elements="2"] { grid-template-columns: minmax(0, 1.55fr) minmax(0, .8fr); }
+.mfx-composition[data-elements="3"] { grid-template-columns: minmax(0, 1.75fr) repeat(2, minmax(0, .74fr)); }
 .mfx-composition img {
-  place-self: center;
+  position: relative;
+  display: block;
+  z-index: 1;
   width: 100%;
-  max-width: 100%;
   height: 100%;
   min-height: 0;
   object-fit: contain;
-  object-position: center;
+  object-position: center bottom;
   filter: drop-shadow(0 4px 7px #160b16bd);
 }
-.mfx-composition .mfx-composite-prop { height: 79%; }
-.mfx-d3-scene[data-state="special"] .mfx-composition { gap: 0; padding-inline: 3px; }
-.mfx-d3-scene[data-state="special"] .mfx-composition:has(.mfx-composite-prop) { grid-auto-columns: minmax(0, 46%); }
-.mfx-three-d-modal[data-character="andrew"] .mfx-flow-art .mfx-composition:first-child { grid-auto-columns: minmax(0, 31%); }
-.mfx-three-d-modal[data-revised-art="true"] {
-  --mfx-panel-backdrop: radial-gradient(ellipse at 50% 55%, color-mix(in srgb, var(--mfx-accent), #331123 72%), #1b0918 75%);
+.mfx-composition .mfx-composite-prop { height: 81%; object-position: center; }
+.mfx-d3-scene[data-state="special"] .mfx-composition { padding-inline: 3px; }
+[data-character="andrew"] .mfx-composition[data-elements="3"] { grid-template-columns: repeat(3,minmax(0,1fr)); }
+[data-character="andrew"] .mfx-composition[data-elements="3"] > img { height: 100%; }
+[data-character="l"] .mfx-composition[data-elements="2"] { column-gap: 0; grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); }
+[data-character="l"] .mfx-composition .mfx-composite-prop { margin-left: -14%; height: 96%; }
+[data-character="harper"] .mfx-d3-scene-art .mfx-composite-actor { height: 100%; }
+.mfx-keycap-cloud {
+  position: relative;
+  align-self: center;
+  justify-self: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
-.mfx-three-d-modal[data-character="header"] {
-  --mfx-panel-backdrop: linear-gradient(90deg, #2c0a20bc, #34112448 48%, #29091daf), url('../assets/scenes/casino-moles-gold.webp') center / cover;
+.mfx-keycap-cloud i {
+  padding: 3px;
+  border: 1px solid #d38c75;
+  border-radius: 4px;
+  background: #38283b;
+  box-shadow: 2px 3px #1b111c, 0 0 9px #fa542b;
+  color: #ffe8d7;
+  font: 700 clamp(7px,.9vw,11px)/1.1 system-ui,sans-serif;
+  transform: rotate(-15deg);
 }
-.mfx-three-d-modal[data-character="sally"] {
-  --mfx-panel-backdrop: linear-gradient(90deg, #2d0e2870, transparent 50%, #2d0e2870), url('../assets/scenes/sally-gold-vault.webp') center / cover;
+.mfx-keycap-cloud i:nth-child(2) { transform: rotate(26deg) translateY(-6px); }
+.mfx-olivia-matchup { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
+.mfx-olivia-matchup img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 52%; }
+.mfx-olivia-matchup b {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 4px 3px;
+  background: linear-gradient(transparent,#2b101ce6);
+  color: #ffedc6;
+  font-size: clamp(9px, 1vw, 13px);
+  text-align: center;
 }
-.mfx-three-d-modal[data-revised-art="true"] :is(.mfx-d3-portrait,.mfx-d3-scene-art) { background: var(--mfx-panel-backdrop); }
-.mfx-three-d-modal[data-revised-art="true"] .mfx-d3-portrait > img {
-  box-sizing: border-box;
-  padding: 6px 12px 38px;
-  filter: drop-shadow(0 7px 15px #140611cd);
-}
+.mfx-d3-scene[data-state="special"] .mfx-olivia-matchup b { display: none; }
 .mfx-preview-panel {
   margin-top: 12px;
   padding: 8px 11px;
@@ -192,7 +273,6 @@
 .mfx-preview-controls select { border-radius: 6px; border: 1px solid #cca181; background: #ffe5be; color: #3c1825; padding: 6px; font: inherit; }
 .mfx-preview-panel .mfx-stage-box, .mfx-preview-panel .mfx-scene { min-height: min(48dvh, 400px); }
 .mfx-preview-panel .mfx-caption { margin-top: 6px; min-height: 0; }
-#grid .mfx-card-tile .mfx-cover img.mfx-d3-thumb { object-fit: contain !important; object-position: center !important; }
 
 @media (max-width: 680px) {
   #mfx-detail-screen { padding: 5px; }

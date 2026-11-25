@@ -1,6 +1,7 @@
-import { mountCombatCharacter, animateCharacter, shouldJacobStun, playCharacterSound } from "./character-fx.js?v=character-refresh-20261125"; // MOLEMALL_CHARACTER_FX
+import { mountCombatCharacter, animateCharacter, shouldJacobStun, playCharacterSound } from "./character-fx.js?v=louis-20261126"; // MOLEMALL_CHARACTER_FX
 // 두더지몰 — 턴 진행 + UI 바인딩
-import { rollDie, resolveAttack } from './rules.js?v=zl-henry-final-20261124';
+import { rollDie, resolveAttack } from './rules.js?v=louis-20261126';
+import { startLouisPoison, tickLouisPoison } from './louis-poison.js';
 import { checkAttack, attackCount, rollProcs, rollOneDieFor, matchingDiceSummon } from './effects.js?v=zl-henry-final-20261124';
 import { createBossState, takeBossHit } from './boss-passives.js?v=zl-henry-final-20261124';
 import { battleArt } from './battle-art.js?v=character-refresh-20261125';
@@ -13,6 +14,7 @@ let data, level = 1, boss, bossHp, denHp, gameOver = false;
 let turnNumber = 1, muted = false, tearTimer, oilTimer, brothersHurtTimer;
 let lastMoleDiceSum = null, lastBossDiceSum = null;   // 직전 턴 주사위 합 (앤드류 같은 효과용)
 let ianBonusCount = 0;
+let moleLouisPoison = null, bossLouisPoison = null;
 let aidenShockTurns = 0;  // persistent shock on the current boss; once per following player turn
 let bossDieRolledBy = null;                           // 다음 보스 반격의 주사위 하나를 대신 굴리는 두더지 이름
 const PROGRESS_KEY = 'molemall_minigame_cleared_bosses_v1';
@@ -111,7 +113,7 @@ function renderBoss() {
   text('bossTitle', boss.name);
   text('bossLevel', `LV${boss.level}`);
   text('passiveTitle', oil ? '기름 분비' : brothers ? '👑 임원 · 당황하는 형제' : boss.id==='l' ? '🐍 뱀의 위장 · 최종 보스' : '보스 정보');
-  text('passiveText', oil ? '피해를 받으면 개기름을 흘립니다. 공격력이 20%씩 증가합니다. (누적 적용)' : brothers ? '피격 시 땀을 뻘뻘 흘리며 두 눈을 동그랗게 뜨고 어리둥절해합니다.' : boss.id==='l' ? 'ㅌ으로 시작하지 않는 두더지를 상대하면 공격력 10 · 공감력 5로 변화' : `주사위를 굴려 공격합니다. 방어 ${fmt(boss.stats.defense)} · 지배 ${fmt(boss.stats.dominance)}`);
+  text('passiveText', oil ? '피해를 받으면 개기름을 흘립니다. 공격력이 20%씩 증가합니다. (누적 적용)' : brothers ? '피격 시 땀을 뻘뻘 흘리며 두 눈을 동그랗게 뜨고 어리둥절해합니다.' : boss.id==='l' ? boss.passive.description : `주사위를 굴려 공격합니다. 방어 ${fmt(boss.stats.defense)} · 지배 ${fmt(boss.stats.dominance)}`);
   text('passiveStack', oil ? `피격 ${boss.oilStacks}회 · 공격 ×${(1.2 ** boss.oilStacks).toFixed(2)}` : `LV${boss.level} · HP ${boss.hp}`);
   text('passiveAttack', `현재 공격력 ${fmt(boss.stats.attack)}`);
   $('arenaBoss').dataset.oilStacks = String(boss.oilStacks);
@@ -160,6 +162,7 @@ function calcLine(att, def, r) {
 function spawnBoss(lv) {
   ianBonusCount=0;
   aidenShockTurns=0;
+  moleLouisPoison=bossLouisPoison=null;
   const base = data.bosses.find(b => b.level === lv);
   if (!base) return null;
   const attackDie = rollDie(), dominanceDie = rollDie();
@@ -484,6 +487,14 @@ async function turn() {
   unlockAudio();
   setBusy(true);$('rollBtn').disabled=true;
   const mole=selectedMole;
+  const heroPoison = tickLouisPoison(moleLouisPoison);
+  moleLouisPoison = heroPoison.next;
+  for (const damage of heroPoison.hits) {
+    hitBoss(damage);
+    log(`<span class="tag">☠️ 루이스 중독 · ${boss.name} HP −${damage}</span>`);
+    if (bossHp <= 0) return end(true);
+  }
+  const louisResting = heroPoison.resting && mole.id === 'l';
   // Residual jellyfish electricity hits once at the beginning of each of the NEXT three turns,
   // independent of which mole is drawn. It does not consume the player's action.
   if (aidenShockTurns>0) {
@@ -503,13 +514,21 @@ async function turn() {
     log(`<span class="tag">💚 에이든의 아군 회복! 두더지 굴 HP +${healed}</span>`);
     step(`💚 에이든 회복: 두더지 굴 HP +${healed}`);
   }
-  const m1=rollDie(),m2=rollDie();
-  fxDice={sum:m1+m2,doubles:m1===m2}; // MOLEMALL_CHARACTER_FX
-  step('③ 두더지 주사위 2개를 굴리는 중…');
-  await animate('dice',m1,m2);
-  showDice('m',m1,m2);
-  step(`④ 두더지 주사위: ${m1} + ${m2} = ${m1+m2}`);
-  const chk=checkAttack(mole,m1,m2),moleDiceSum=m1+m2;
+  let m1, m2;
+  if (!louisResting) {
+    m1=rollDie(); m2=rollDie();
+    fxDice={sum:m1+m2,doubles:m1===m2};
+    step('③ 두더지 주사위 2개를 굴리는 중…');
+    await animate('dice',m1,m2);
+    showDice('m',m1,m2);
+    step(`④ 두더지 주사위: ${m1} + ${m2} = ${m1+m2}`);
+  } else {
+    fxDice={sum:null,doubles:false};
+  }
+  const chk = louisResting
+    ? { ok: false, reason: `루이스의 휴식 · 남은 ${moleLouisPoison.rest}턴` }
+    : checkAttack(mole,m1,m2);
+  const moleDiceSum = louisResting ? lastMoleDiceSum : m1+m2;
   let atk=null;
   if(!chk.ok) {
     $('arenaStatus').textContent=`공격 실패: ${chk.reason}`;
@@ -546,7 +565,12 @@ async function turn() {
       atk=resolveAttack(mole,boss,e1,e2,null,{lastOpponentDiceSum:lastBossDiceSum});
       if(mole.id==='ian' && ianBonusCount){const multiplier=1.2**ianBonusCount;atk.damage=Math.max(0,Math.round((atk.effAttack*multiplier-atk.effDefense)*10)/10);atk.effAttack=Math.round(atk.effAttack*multiplier*10)/10;}
 
-      await animateCombat('mole',atk.damage,boss.name, () => hitBoss(atk.damage));
+      await animateCombat('mole',atk.damage,boss.name, () => hitBoss(atk.damage),
+        {phase: atk.louisPoison ? 'special' : 'attack'});
+      if (atk.louisPoison && h === 0 && bossHp > 0) {
+        moleLouisPoison = startLouisPoison();
+        log('<span class="tag">☠️ 루이스 독 공격! 공격력 30 · 휴식 2턴 · 중독 3턴</span>');
+      }
       if (atk.triggered.length) log(atk.triggered.map(t => `<span class="tag">⚡ ${t.who==='attacker'?mole.name:boss.name} ${{attack:'공격력',defense:'방어력',dominance:'지배력',empathy:'공감력'}[t.stat]} ${fmt(t.from)}→${fmt(t.to)}</span>`).join(' '));
       step(`⑤ ${h+1}타 피해 ${fmt(atk.damage)} (공격 ${fmt(atk.effAttack)}, 방어 ${fmt(atk.effDefense)})`);
       log(`🐾 <b>${mole.name}</b>${hits>1?` (${h+1}타)`:''} 🎲 ${e1}+${e2} ${bonusTags(atk)} → <b>${boss.name}</b>에게 데미지 <b>${fmt(atk.damage)}</b>${calcLine(mole,boss,atk)}`);
@@ -583,7 +607,16 @@ async function turn() {
   if(chk.ok)for(const proc of rollProcs(mole)){
     if(proc==='rollOpponentDie'){bossDieRolledBy=mole.name;log(`<span class="tag">✨ ${mole.name}의 수작! ${boss.name}의 주사위 하나는 ${mole.name}이(가) 굴린다.</span>`);}
   }
-  for(let i=0;i<(chk.skipTurn?2:1);i++){
+  const bossPoison = tickLouisPoison(bossLouisPoison);
+  bossLouisPoison = bossPoison.next;
+  for (const damage of bossPoison.hits) {
+    denHp = Math.max(0, denHp - damage);
+    renderDen();
+    log(`<span class="tag">☠️ 루이스 중독 · 두더지 굴 HP −${damage}</span>`);
+    if (denHp <= 0) return end(false);
+  }
+  if (bossPoison.resting) log(`💤 루이스가 이번 반격을 쉰다. (남은 휴식 ${bossLouisPoison.rest}턴)`);
+  for(let i=0;!bossPoison.resting && i<(chk.skipTurn?2:1);i++){
     if(jacobLaughSkip){if(i===0)continue;} // MOLEMALL_CHARACTER_FX: skip the next counterattack only
     let b1=rollDie(),b2=rollDie();
     if(bossDieRolledBy){
@@ -602,7 +635,12 @@ async function turn() {
     if(mole.id==='kade' && m1===m2){counter.damage=Math.max(0,Math.round((counter.effAttack/2-counter.effDefense*2)*10)/10);log('<span class="tag">🛡️ 케이드 더블: 방어 2배 / 상대 공격 반감</span>');}
     if(mole.id==='kade' && denHp<=DEN_HP*.2){const reroll=rollDie();log(`<span class="tag">🎲 케이드 위기 재굴림: ${reroll}</span>`);if(reroll===1){counter.damage=0;log('<span class="tag">🛡️ 케이드 공격 무효!</span>');}}
 
-    await animateCombat('boss',counter.damage,'두더지 굴', () => { denHp=Math.max(0,denHp-counter.damage);renderDen(); });
+    await animateCombat('boss',counter.damage,'두더지 굴', () => { denHp=Math.max(0,denHp-counter.damage);renderDen(); },
+      {phase: counter.louisPoison ? 'special' : 'attack'});
+    if (counter.louisPoison && denHp > 0) {
+      bossLouisPoison = startLouisPoison();
+      log('<span class="tag">☠️ 루이스 독 반격! 공격력 30 · 휴식 2턴 · 중독 3턴</span>');
+    }
     lastBossDiceSum=b1+b2;
     if(lastBossDiceSum<=6) ianBonusCount++;
     step(`⑦ 보스 ${b1}+${b2}, 두더지 굴 피해 ${fmt(counter.damage)} / 남은 HP ${fmt(Math.max(0,denHp))}`);

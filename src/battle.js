@@ -1,5 +1,5 @@
 // 두더지몰 본 게임 — 로비 + 네트워크 + 렌더링. 규칙은 battle-rules.js, 연결은 net.js
-import { createGame, applyAction, COST, DRAW_PER_TURN, HAND_LIMIT } from './battle-rules.js?v=zl-henry-final-20261124';
+import { createGame, applyAction, COST, DRAW_PER_TURN, HAND_LIMIT } from './battle-rules.js?v=louis-20261126';
 import { host, join, makeCode } from './net.js';
 
 const $ = id => document.getElementById(id);
@@ -116,7 +116,7 @@ function setSprite(id, card, owner) {
 let lastAttackSeen = null;
 function playAttackFx() {
   const a = state.lastAttack;
-  if (!a || a === lastAttackSeen) return;
+  if (!a || a.fizzled || a === lastAttackSeen) return;
   const key = JSON.stringify([a.player, a.attacker, a.damage, state.players[1 - a.player].hp]);
   if (key === lastAttackSeen) return;
   lastAttackSeen = key;
@@ -126,6 +126,16 @@ function playAttackFx() {
   $('dice').classList.remove('roll'); void $('dice').offsetWidth; $('dice').classList.add('roll');
   $(atk).classList.add('lunge');
   $(def).classList.add('hit');
+  if (a.attacker === 'l') {
+    const venom = document.createElement('img');
+    venom.className = 'louis-venom-projectile';
+    venom.src = '../assets/fx/plush/louis-venom.webp';
+    venom.alt = '';
+    const forward = a.player === me;
+    venom.classList.toggle('towards-player', !forward);
+    $(atk).closest('.screen').append(venom);
+    venom.addEventListener('animationend', () => venom.remove(), {once: true});
+  }
   setTimeout(() => { $(atk).classList.remove('lunge'); $(def).classList.remove('hit'); }, 1000);
 }
 

@@ -74,6 +74,25 @@
   #oppSprite.lunge { animation: lungeOpp .5s ease-out; }
   #oppSprite.hit { animation: hit .6s .3s; }
   #mySprite.hit  { animation: hitMe .6s .3s; }
+  .louis-venom-projectile {
+    position: absolute; z-index: 2; pointer-events: none;
+    left: 23%; top: 31%; width: 43%; object-fit: contain;
+    filter: drop-shadow(0 3px 8px #922aff9f);
+    animation: louis-venom-flight 750ms ease-out both;
+  }
+  .louis-venom-projectile.towards-player {
+    left: 52%; top: 10%; scale: -1 1;
+    --venom-x: -68%; --venom-y: 51%;
+  }
+  @keyframes louis-venom-flight {
+    0% {opacity:0; transform:scale(.3)}
+    25% {opacity:1}
+    78% {opacity:1; transform:translate(var(--venom-x,62%),var(--venom-y,-60%)) scale(1.14)}
+    100% {opacity:0; transform:translate(var(--venom-x,62%),var(--venom-y,-60%)) scale(.97)}
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .louis-venom-projectile { animation-duration: 2ms; }
+  }
   .dice { position: absolute; left: 50%; top: 38%; transform: translateX(-50%); display: flex; gap: .4em; }
   .die { width: 2em; height: 2em; border: 3px solid var(--ink); background: #fff; font-family: Galmuri14; font-size: 1em; display: flex; align-items: center; justify-content: center; }
   .dice.roll .die { animation: shake .4s; }
@@ -112,6 +131,7 @@
   #picker h3 { color: #fff; }
   #picker .grid { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 </style>
+<link rel="stylesheet" href="../src/executive-frame.css?v=louis-20261126">
 </head>
 <body>
 <h1>두더지몰 — 카드 배틀</h1>
@@ -166,6 +186,6 @@
 <div id="picker" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
-<script type="module" src="../src/battle.js"></script>
+<script type="module" src="../src/battle.js?v=louis-20261126"></script>
 </body>
 </html>

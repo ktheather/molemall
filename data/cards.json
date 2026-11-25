@@ -489,13 +489,13 @@
     },
     {
       "id": "l",
-      "name": "L",
+      "name": "루이스",
       "nickname": "Tom Marvolo Riddle",
       "role": "두더지 카드 · 최종 보스",
       "species": "snake",
       "countsAsMole": true,
       "image": "assets/moles/plush/l.png",
-      "imageDesc": "두더지 모양 흰색 탈 아래의 초록색 눈과 갈라진 혀가 드러나는 봉제인형 뱀.",
+      "imageDesc": "흰 두더지 후드가 뱀 얼굴을 가리고 후드 밖으로 갈라진 혀만 보이는 봉제인형.",
       "stats": {
         "attack": 2,
         "defense": 3,
@@ -503,7 +503,7 @@
         "empathy": 0
       },
       "trait": "Tom Marvolo Riddle",
-      "secret": "상대가 이름이 ㅌ으로 시작하지 않는 두더지 캐릭터면 공격력 10, 공감력 5로 변화한다. 그 밖의 상대에게는 공격력 2·공감력 0을 유지한다.",
+      "secret": "상대가 이름이 ㅌ으로 시작하지 않는 두더지 캐릭터면 공격력 10, 공감력 5로 변화한다. 그 밖의 상대에게는 공격력 2·공감력 0을 유지한다. 상대 지배력이 9 이상이면 공격력이 30이 된다. 다음 2턴은 루이스가 공격을 쉬며, 3턴 동안 매 턴 무작위 5~10의 독 피해를 준다. 휴식과 중독이 겹치는 턴에는 독 피해를 두 번 적용한다.",
       "effects": [
         {
           "when": {
@@ -517,6 +517,7 @@
         }
       ],
       "tags": [
+        "임원",
         "두더지",
         "악 카드",
         "보스"
@@ -636,10 +637,10 @@
     {
       "id": "l",
       "level": 6,
-      "name": "L",
+      "name": "루이스",
       "nickname": "Tom Marvolo Riddle",
       "hp": 100,
-      "image": "assets/bosses/l-plush.webp",
+      "image": "assets/fx/plush/l-idle.webp",
       "scene": "assets/scenes/serpent-theater.webp",
       "stats": {
         "attack": 2,
@@ -648,6 +649,7 @@
         "empathy": 0
       },
       "tags": [
+        "임원",
         "두더지",
         "악 카드",
         "최종 보스"
@@ -658,7 +660,7 @@
       "passive": {
         "id": "disguise",
         "name": "뱀의 위장",
-        "description": "상대가 이름이 ㅌ으로 시작하지 않는 두더지 캐릭터면 공격력 10, 공감력 5로 변화한다. 그 밖의 상대에게는 공격력 2·공감력 0을 유지한다."
+        "description": "상대가 이름이 ㅌ으로 시작하지 않는 두더지 캐릭터면 공격력 10, 공감력 5로 변화한다. 그 밖의 상대에게는 공격력 2·공감력 0을 유지한다. 상대 지배력이 9 이상이면 공격력이 30이 된다. 다음 2턴은 루이스가 공격을 쉬며, 3턴 동안 매 턴 무작위 5~10의 독 피해를 준다. 휴식과 중독이 겹치는 턴에는 독 피해를 두 번 적용한다."
       },
       "effects": [
         {

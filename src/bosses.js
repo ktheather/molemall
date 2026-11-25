@@ -61,7 +61,8 @@ function openDetail(boss, trigger) {
 
 function bossCard(boss) {
   const final = boss.id === FINAL_BOSS_ID;
-  const card = element('button', `boss-card${final ? ' final' : ''}`);
+  const executive = boss.tags?.includes('임원');
+  const card = element('button', `boss-card${final ? ' final' : ''}${executive ? ' mfx-executive' : ''}`);
   card.type = 'button';
   card.dataset.id = boss.id;
   card.setAttribute('aria-haspopup', 'dialog');
@@ -69,7 +70,7 @@ function bossCard(boss) {
   const top = element('span', 'card-top');
   top.append(element('span', 'level', `LV${boss.level}`));
   if (final) top.append(element('span', 'final-label', '최종 보스'));
-  if ((boss.tags ?? []).includes('임원')) top.append(element('span', 'executive-label', '👑 임원'));
+  if (executive) top.append(element('span', 'executive-label', '👑 임원'));
   const hp = element('span', 'card-hp', 'HP ');
   hp.append(element('b', '', fmt(boss.hp)));
   const stats = element('span', 'stats');

@@ -1,6 +1,7 @@
 // 두더지몰 본 게임: 2인 카드 배틀 — 순수 상태 머신 (네트워크/UI 없음)
 // 호스트가 이 함수들로 상태를 갱신하고, 결과 상태를 게스트에게 그대로 보낸다.
-import { diceBonus, resolveAttack } from './rules.js?v=zl-henry-final-20261124';
+import { diceBonus, resolveAttack } from './rules.js?v=louis-20261126';
+import { startLouisPoison, tickLouisPoison } from './louis-poison.js';
 import { sallyAttackSequence } from './sally-combo.js';
 import { checkAttack, attackCount, rollProcs, rollOneDieFor, matchingDiceSummon } from './effects.js?v=zl-henry-final-20261124';
 
@@ -20,7 +21,7 @@ export function createGame(cards, names = ['P1', 'P2']) {
     cards: Object.fromEntries(cards.map(c => [c.id, c])),
     pool: cards.map(c => c.id),
     players: [0, 1].map(i => ({
-      name: names[i], hp: DEN_HP, coins: START_COINS, hand: [], active: null, orderDie: null, skipTurn: false, lastDiceSum: null, dieRolledBy: null, henryAttackLock: false,
+      name: names[i], hp: DEN_HP, coins: START_COINS, hand: [], active: null, orderDie: null, skipTurn: false, lastDiceSum: null, dieRolledBy: null, henryAttackLock: false, louisPoison: null,
     })),
     turn: null,                // 현재 턴 플레이어 index
     turnPhase: null,           // 'draw' → 'act'
@@ -57,10 +58,29 @@ function startPlay(s, first, rng) {
   log(s, `🎲 선공: <b>${s.players[first].name}</b>. 각자 카드 ${START_HAND}장을 받았다.`);
 }
 
-function endTurn(s) {
+function applyLouisPoisonTick(s, player, rng) {
+  const me = s.players[player], op = s.players[other(player)];
+  const poison = tickLouisPoison(me.louisPoison, rng);
+  me.louisPoison = poison.next;
+  for (const damage of poison.hits) {
+    if (op.hp <= 0) break;
+    op.hp = Math.max(0, op.hp - damage);
+    log(s, `<span class="fx">☠️ 루이스 중독 · ${op.name}의 굴에 ${damage} 피해</span>`);
+  }
+  if (op.hp <= 0) {
+    s.phase = 'over'; s.winner = player;
+    s.lastAttack = null;
+    log(s, `🏆 <b>${me.name}</b> 승리! 중독으로 ${op.name}의 굴이 무너졌다.`);
+  }
+  return poison.resting;
+}
+
+function endTurn(s, rng) {
   const next = other(s.turn);
   if (s.players[next].skipTurn) {          // 카드 효과로 한 턴 쉼 → 지금 플레이어가 한 번 더
     s.players[next].skipTurn = false;
+    applyLouisPoisonTick(s, next, rng);
+    if (s.phase === 'over') return;
     log(s, `💤 ${s.players[next].name}은(는) 이번 턴을 쉰다. ${s.players[s.turn].name}이(가) 한 번 더!`);
   } else s.turn = next;
   s.turnPhase = 'draw';
@@ -163,6 +183,16 @@ export function applyAction(state, action, rng = Math.random) {
       if (!me.hand.includes(action.cardId)) return fail(s, '손패에 없는 카드');
       const atkCard = s.cards[action.cardId];
       const defCard = defenderCard(s, other(p));
+      const louisResting = applyLouisPoisonTick(s, p, rng);
+      if (s.phase === 'over') return ok(s);
+      if (louisResting && atkCard.id === 'l') {
+        me.active = atkCard.id;
+        s.lastDice = null;
+        s.lastAttack = { player: p, attacker: atkCard.id, defender: defCard.id ?? null, damage: 0, fizzled: true };
+        log(s, `💤 루이스는 이번 턴 공격을 쉰다. (남은 휴식 ${me.louisPoison.rest}턴)`);
+        endTurn(s, rng);
+        return ok(s);
+      }
       const henryLockedAttack = me.henryAttackLock === true;
       me.henryAttackLock = false;
       let d1 = rollDie(rng), d2 = rollDie(rng);
@@ -181,7 +211,7 @@ export function applyAction(state, action, rng = Math.random) {
         s.lastAttack = { player: p, attacker: atkCard.id, defender: defCard.id ?? null, damage: 0, fizzled: true };
         me.lastDiceSum = d1 + d2;
         log(s, `⚔️ ${me.name}의 <b>${atkCard.name}</b> 🎲${d1}+${d2} → <span class="fx">${chk.reason}</span>`);
-        endTurn(s);
+        endTurn(s, rng);
         return ok(s);
       }
       const STAT_KO = { attack: '공격력', defense: '방어력', dominance: '지배력', empathy: '공감력' };
@@ -208,6 +238,10 @@ export function applyAction(state, action, rng = Math.random) {
         const [e1, e2] = h === 0 ? [d1, d2] : [rollDie(rng), rollDie(rng)];   // 2타부터는 새로 굴린다
         const r = resolveAttack(atkCard, defCard, e1, e2, null, { lastOpponentDiceSum: op.lastDiceSum, ...(henryLockedAttack?{forceAttackStat:1}:{}) });
         op.hp = Math.max(0, op.hp - r.damage);
+        if (r.louisPoison && h === 0 && op.hp > 0) {
+          me.louisPoison = startLouisPoison();
+          log(s, '<span class="fx">☠️ 루이스 독 공격! 공격력 30 · 휴식 2턴 · 중독 3턴</span>');
+        }
         s.lastDice = { player: p, d1: e1, d2: e2 };
         s.lastAttack = { player: p, attacker: atkCard.id, defender: defCard.id ?? null, hit: h, ...r };
         const tags = [
@@ -246,7 +280,7 @@ export function applyAction(state, action, rng = Math.random) {
       if (op.hp <= 0) {
         s.phase = 'over'; s.winner = p;
         log(s, `🏆 <b>${me.name}</b> 승리! ${op.name}의 굴이 무너졌다.`);
-      } else endTurn(s);
+      } else endTurn(s, rng);
       return ok(s);
     }
     default:
