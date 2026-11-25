@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#200f20">
+  <meta name="description" content="두더지몰 로그라이크 원정: 나만의 봉제인형 원정대를 구성하고 자동 전투로 3막 던전을 탐험하세요.">
+  <title>PLUSH ROGUE | 두더지몰</title>
+  <link rel="preload" as="image" href="../assets/scenes/plush-meadow.png">
+  <link rel="stylesheet" href="../src/character-fx.css?v=character-refresh-20261125">
+  <link rel="stylesheet" href="./rogue.css?v=1">
+</head>
+<body>
+  <div class="rogue-shell">
+    <header class="topbar">
+      <a class="back-link" href="../" aria-label="두더지몰 메인으로 돌아가기">← 두더지몰</a>
+      <div class="brand"><small>두더지몰 · SINGLE PLAYER</small><h1>✦ PLUSH ROGUE ✦</h1></div>
+      <div class="top-actions">
+        <button class="mini-button" type="button" id="sound-toggle" aria-pressed="false" title="효과음 켜기/끄기">♪ 소리 켜짐</button>
+        <button class="mini-button" type="button" id="help-toggle" title="게임 설명">? 도움말</button>
+      </div>
+    </header>
+    <main id="app" class="app-content" aria-live="off">
+      <div class="center-message"><span class="loading-star" aria-hidden="true">✦</span><h2>봉제인형 원정대 준비 중…</h2><p>카드를 불러오고 있습니다.</p></div>
+    </main>
+    <footer class="footnote">원정 진행 상황은 현재 브라우저에 자동 저장됩니다. · 클래식 보스전과 진행 기록은 서로 영향을 주지 않습니다.</footer>
+  </div>
+  <dialog id="help-dialog" class="help-dialog">
+    <form method="dialog">
+      <button class="dialog-close" aria-label="닫기">✕</button>
+      <h2>✦ PLUSH ROGUE 플레이 방법</h2>
+      <p><b>① 원정대 편성:</b> 기존 두더지 카드 중 5장을 선택해요. 앞의 3장이 출전하고 뒤의 2장은 대기해요.</p>
+      <p><b>② 던전 탐험:</b> 매 막 4개의 노드를 지나 보스를 처치해요. 전투·정예·사건·휴식 중 다음 경로를 골라요.</p>
+      <p><b>③ 자동 전투:</b> 카드가 알아서 주사위를 굴리고 공격해요. 공격/방어/지배/공감과 기존 고유 특성이 영향을 줘요.</p>
+      <p><b>④ 생존:</b> 체력은 다음 전투에도 이어져요. 쓰러진 카드는 이번 원정에서 사용할 수 없지만 휴식으로 부활시킬 수 있어요.</p>
+      <p><b>⑤ 보상:</b> 전투에 이기면 전리품을 선택하고, 3막의 마지막 보스 L을 쓰러뜨리면 원정에 성공해요.</p>
+      <p class="muted">이번 버전은 첫 플레이 가능한 베타입니다. 클래식 전투의 모든 세부 효과는 추후 원정 전용 밸런싱으로 확장할 수 있습니다.</p>
+      <button class="primary-button" value="close">확인</button>
+    </form>
+  </dialog>
+  <script type="module" src="./rogue.js?v=1"></script>
+</body>
+</html>

@@ -47,6 +47,10 @@
     .table-menu a span {font-size:13px;font-weight:800}
     .table-menu a small {font-size:10px;color:#d8b198}
     .table-menu a:last-child {margin-bottom:0}
+    .zone-rogue{left:9%;top:31%;width:24%;height:25%;z-index:6;display:flex;align-items:end;justify-content:center;padding-bottom:2%}
+    .zone-rogue::before{border-radius:24px}
+    .rogue-label{background:linear-gradient(145deg,#ffedb3,#cb8e46);border:2px solid #fff1bd;border-radius:13px;padding:9px 12px;color:#3b1b24;font-size:clamp(10px,1.2vw,16px);font-weight:950;text-align:center;box-shadow:0 5px 22px #18070bc9}
+    .rogue-label small{display:block;color:#6e3d30;font-size:clamp(8px,.65vw,10px)}
     .mobile-dock {display:none}
     @media(max-width:850px) and (min-width:641px){.table-menu{top:-80%;width:245px}.identity{gap:6px}.identity-icon{width:26px;height:26px}.hover-help{bottom:.6%}}
     /* A phone has no hover: one unobtrusive disclosure button provides the same 5 routes. */
@@ -78,6 +82,7 @@
     <span><b>두더지몰</b><small>PLUSH CASINO</small></span>
    </div>
    <nav aria-label="카지노 기구 선택">
+     <a class="zone zone-rogue" href="/rogue/" aria-label="왼쪽 슬롯머신: PLUSH ROGUE 싱글플레이 원정"><span class="rogue-label">✦ PLUSH ROGUE<small>1인 로그라이크 · AUTO BATTLE</small></span></a>
      <a class="zone zone-cards" href="/battle/" aria-label="왼쪽 카드 테이블: 카드게임">
        <span class="hint single-hint"><span class="hint-name">🃏 카드게임</span><span class="hint-sub">카드 배틀 입장</span></span>
      </a>
@@ -97,6 +102,7 @@
    <p class="hover-help">✦ 카드 테이블 · 클로버 조명 · 별 조명 · 룰렛 · 중앙 행운 기구를 선택하세요 ✦</p>
   </section>
   <details class="mobile-dock"><summary>✦ 게임 메뉴</summary><nav class="mobile-links" aria-label="모바일 게임 메뉴">
+    <strong>✦ 왼쪽 슬롯머신</strong><a href="/rogue/">🎰 PLUSH ROGUE · 싱글플레이</a>
     <strong>♠ 카드 테이블</strong>
     <a href="/battle/">🃏 카드게임</a>
     <strong>조명 사전</strong>
