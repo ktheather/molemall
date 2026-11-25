@@ -3,7 +3,7 @@ import { CHARACTER_FX, createScene, $escape, playCharacterSound } from './charac
 const $ = s => document.querySelector(s);
 const esc = $escape;
 const artBase = '../assets/moles/detail/';
-const modes = {idle:'기본 상태',attack:'공격',special:'특수 연출'};
+const modes = {idle:'기본 상태',attack:'공격 연출',special:'특수 연출'};
 const statTypes = [['attack','⚔️ 공격'],['defense','🛡 방어'],['dominance','👑 지배'],['empathy','💗 공감']];
 const revisedArt = {
   z: [['z-idle'], ['z-spikes','quill'], ['header-berserker','summon-circle']],
@@ -14,19 +14,30 @@ const revisedArt = {
   sally: [['sally-idle'], ['sally-swing','hammer'], ['sally-drop','diamond']],
   henry: [['henry-idle'], ['henry-charge','glasses'], ['henry-coat']]
 };
-const regularSpecialArt = new Set(['hailey']);
-const sprite = (name, className = '') => `<img class="${className}" src="../assets/fx/plush/${name}.webp" alt="">`;
+const revisedFlow = {
+  z: ['가시 없이 대기','가시 성장·사방 발사','소환진·광전사 헤더'],
+  l: ['후드 속 혀만 낼름','형광 녹색 독 분사','보라색 해골 연기'],
+  header: ['돼지 저금통 쓰담','찢어진 정장·돈다발','분노 오라·강타'],
+  henry: ['후드티·안경','안경 투척·돌진','민소매·털코트 변신'],
+  sally: ['황금 금고·펜과 수첩','거대 망치 연속 타격','다이아몬드 낙하']
+};
+const sprite = (name, className) => `<img class="${className}" src="../assets/fx/plush/${name}.webp" alt="">`;
 const heroArt = m => revisedArt[m.id]
  ? `../assets/fx/plush/${m.id}-idle.webp`
  : art(m.id,'hero');
 
-function sceneArt(m, state, index) {
- const frames = revisedArt[m.id]?.[index];
- if (!frames) {
-  const part = state === 'special' && !regularSpecialArt.has(m.id) ? 'flow' : state;
-  return `<img src="${art(m.id,part)}" alt="">`;
+function compose(names) {
+ return `<span class="mfx-composition">${names.map((name, index) =>
+  sprite(name, index ? 'mfx-composite-prop' : 'mfx-composite-actor')).join('')}</span>`;
+}
+
+function sceneArt(m, state) {
+ const frames = revisedArt[m.id];
+ if (!frames) return `<img src="${art(m.id, state === 'special' ? 'flow' : state)}" alt="">`;
+ if (state === 'special') {
+  return `<span class="mfx-flow-art">${frames.map(frame => compose(frame)).join('')}</span>`;
  }
- return frames.map((name, i) => sprite(name, i === 0 ? 'mfx-thumb-pose' : 'mfx-thumb-prop')).join('');
+ return compose(frames[state === 'idle' ? 0 : 1]);
 }
 let all=[],selected=null,mode='idle',opponent='태티서',beforeFocus=null;
 const layer=document.createElement('div'); layer.id='mfx-detail-screen'; layer.hidden=true;layer.setAttribute('role','presentation');document.body.append(layer);
@@ -54,48 +65,62 @@ function renderMode() {
  const f=CHARACTER_FX[selected.id]||{idle:'기본 대기',attack:'공격',special:'특수 연출'};
  const mount=$('#mfx-stage-mount');if(mount)mount.innerHTML=createScene(selected,{mode,opponentName:opponent});
  const title=$('#mfx-state-caption');if(title)title.textContent=`${modes[mode]} · ${f[mode]||''}`;
+ layer.querySelectorAll('.mfx-d3-scene').forEach(button =>
+  button.classList.toggle('mfx-active-scene', button.dataset.state === mode));
  layer.querySelectorAll('.mfx-modes button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
 }
 function open(m) {
  selected=m; mode='idle';opponent=m.id==='olivia'?'션':m.id==='jacob'?'태티서':m.id==='z'?'L':m.id==='l'?'헤더':'코끼리';
  beforeFocus=document.activeElement;
  const f = CHARACTER_FX[m.id] || {idle:'기본 상태', attack:'일반 공격', special:'특수 연출'};
- const sallyBackdrop = m.id === 'sally' ? ' mfx-sally-backdrop' : '';
- const stateCards = Object.entries(modes).map(([state,label], index) => `
-   <button class="mfx-state-card" type="button" data-state="${state}" data-character="${esc(m.id)}"
-     aria-label="${label} 애니메이션 보기">
-     <strong>${label}</strong>
-     <span class="mfx-state-art${sallyBackdrop}">${sceneArt(m,state,index)}</span>
-     <span class="mfx-state-description">${esc(f[state])}</span>
+ const flow = revisedFlow[m.id] || f.flow || Object.values(modes);
+ const stateCards = Object.entries(modes).map(([state,label]) => `
+   <button class="mfx-d3-scene" type="button" data-state="${state}"
+     aria-label="${label} 애니메이션 보기" aria-controls="mfx-live-preview">
+     <strong class="mfx-d3-scene-label">${state === 'special' ? '연출 흐름 · 특수 연출' : label}</strong>
+     <span class="mfx-d3-scene-art">${sceneArt(m,state)}</span>
+     ${state === 'special'
+       ? `<span class="mfx-d3-flowline">${flow.map((step,index) =>
+          `<span><b>0${index+1}</b> ${esc(step)}</span>`).join('')}</span>
+          <span class="mfx-d3-special-note">${esc(f.special)}</span>`
+       : `<span class="mfx-d3-scene-caption">${esc(f[state])}</span>`}
    </button>`).join('');
- layer.innerHTML=`<section class="mfx-modal mfx-three-d-modal" role="dialog" aria-modal="true" aria-labelledby="mfx-detail-title">
- <header class="mfx-detail-header">
-  <div><h2 id="mfx-detail-title">${esc(m.name)}</h2><span>${esc(heading(m))}</span></div>
-  <button class="mfx-close-modal" type="button" aria-label="팝업 닫기">✕ 닫기</button>
- </header>
- <div class="mfx-overview">
-  <div class="mfx-profile">
-   <div class="mfx-profile-art${sallyBackdrop}"><img src="${heroArt(m)}" alt="${esc(m.name)}"></div>
-   <div class="mfx-profile-data">
+ layer.innerHTML=`<section class="mfx-modal mfx-three-d-modal" data-character="${esc(m.id)}"
+   data-revised-art="${Boolean(revisedArt[m.id])}" role="dialog" aria-modal="true"
+   aria-labelledby="mfx-detail-title" style="--mfx-accent:${f.accent || '#d5a66b'}">
+ <button class="mfx-close-modal" type="button" aria-label="팝업 닫기">✕ 닫기</button>
+ <div class="mfx-d3-layout">
+  <article class="mfx-d3-left">
+   <div class="mfx-d3-portrait">
+    <img src="${heroArt(m)}" alt="${esc(m.name)}">
+    <div class="mfx-d3-nameplate">
+     <span class="mfx-d3-seal" aria-hidden="true">✦</span>
+     <h2 id="mfx-detail-title">${esc(m.name)}</h2><em>${esc(heading(m))}</em>
+    </div>
+   </div>
+   <div class="mfx-d3-parchment">
     <div class="mfx-d3-statline">${statBadges(m)}</div>
     ${m.trait && m.trait !== heading(m) ? `<p class="mfx-card-trait">${esc(m.trait)}</p>` : ''}
-    <strong class="mfx-rule-title">특이사항</strong>
+    <strong class="mfx-d3-ribbon">특이사항</strong>
     <p class="mfx-d3-rule">${esc(rules(m))}</p>
    </div>
-  </div>
-  <div class="mfx-state-grid">${stateCards}</div>
+  </article>
+  <div class="mfx-d3-right">${stateCards}</div>
  </div>
- <section class="mfx-preview-panel" hidden aria-label="전투 애니메이션">
+ <details class="mfx-preview-panel" id="mfx-live-preview">
+  <summary>전투 애니메이션 미리보기</summary>
   <div class="mfx-preview-controls">
-   <button type="button" class="mfx-back-to-card">← 카드 정보</button>
    <label>상대 <select id="mfx-target-select">${[...new Set(['L','태티서','키미','션','코끼리','헤더',...all.map(x=>x.name)])].map(t=>`<option value="${esc(t)}" ${t===opponent?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
    <div class="mfx-modes">${Object.entries(modes).map(([state,label]) =>
     `<button type="button" data-mode="${state}" aria-pressed="false">${label}</button>`).join('')}</div>
   </div>
   <div class="mfx-stage-box" id="mfx-stage-mount"></div>
   <div id="mfx-state-caption" class="mfx-caption"></div>
- </section>
+ </details>
  </section>`;
+ layer.querySelector('.mfx-preview-panel').addEventListener('toggle', (event) => {
+  if (event.currentTarget.open && !event.currentTarget.querySelector('.mfx-scene')) renderMode();
+ });
  layer.hidden=false;document.body.style.overflow='hidden';
  layer.querySelector('.mfx-close-modal')?.focus();
 }
@@ -103,22 +128,14 @@ function close() {layer.hidden=true;document.body.style.overflow='';layer.replac
 layer.addEventListener('click',e=>{
  if(e.target===layer||e.target.closest('.mfx-close-modal'))return close();
  const b=e.target.closest('.mfx-modes button');if(b){mode=b.dataset.mode;renderMode();playCharacterSound(selected,mode)}
- const scene=e.target.closest('.mfx-state-card');
- const overview=layer.querySelector('.mfx-overview');
- const preview=layer.querySelector('.mfx-preview-panel');
+ const scene=e.target.closest('.mfx-d3-scene');
  if (scene) {
   mode=scene.dataset.state;
-  overview.hidden=true;
-  preview.hidden=false;
+  const preview=layer.querySelector('.mfx-preview-panel');
+  preview.open=true;
   renderMode();
   playCharacterSound(selected,mode);
-  preview.querySelector('.mfx-back-to-card').focus();
- }
- if (e.target.closest('.mfx-back-to-card')) {
-  preview.hidden=true;
-  preview.querySelector('#mfx-stage-mount').replaceChildren();
-  overview.hidden=false;
-  overview.querySelector(`[data-state="${mode}"]`)?.focus();
+  preview.querySelector('summary').focus();
  }
 });
 layer.addEventListener('change',e=>{if(e.target.id==='mfx-target-select'){opponent=e.target.value;renderMode()}});
