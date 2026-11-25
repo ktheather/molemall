@@ -1,9 +1,9 @@
-import { mountCombatCharacter, animateCharacter, shouldJacobStun, playCharacterSound } from "./character-fx.js"; // MOLEMALL_CHARACTER_FX
+import { mountCombatCharacter, animateCharacter, shouldJacobStun, playCharacterSound } from "./character-fx.js?v=character-refresh-20261125"; // MOLEMALL_CHARACTER_FX
 // 두더지몰 — 턴 진행 + UI 바인딩
 import { rollDie, resolveAttack } from './rules.js?v=zl-henry-final-20261124';
 import { checkAttack, attackCount, rollProcs, rollOneDieFor, matchingDiceSummon } from './effects.js?v=zl-henry-final-20261124';
 import { createBossState, takeBossHit } from './boss-passives.js?v=zl-henry-final-20261124';
-import { battleArt } from './battle-art.js';
+import { battleArt } from './battle-art.js?v=character-refresh-20261125';
 import { sallyAttackSequence } from './sally-combo.js';
 import { AIDEN_DOT_TURNS, isAidenJellyfishRoll, aidenHealAmount, tickAidenJellyfish } from './aiden-jellyfish.js';
 import { buildBossStages, normalizeClearedBossIds, getUnlockedLevel, canEnterStage } from './boss-stages.js?v=z-l-final-20261124';
@@ -179,6 +179,7 @@ function spawnBoss(lv) {
   $('bossBarLabel').textContent = boss.name;
   const arena = document.querySelector('.arena');
   arena.dataset.level = String(boss.level);
+  delete arena.dataset.activeMole;
   arena.dataset.boss = boss.id;
   document.querySelector('.scene-label').textContent = boss.id === 'taetiseo' ? `LV.${String(boss.level).padStart(2, '0')} · 쓰레기장` : boss.id === 'pure_brothers' ? `LV.${String(boss.level).padStart(2, '0')} · 전산실` : boss.id === 'l' ? `LV.${String(boss.level).padStart(2, '0')} · 뱀의 극장` : '';
   updateBossPath();
@@ -200,11 +201,12 @@ function spawnBoss(lv) {
     setBoriFrame(0,0);
   } else if(boss.image){
     const img=document.createElement('img');
-    img.src='../'+boss.image+'?v='+IMG_V;
+    img.src=boss.id==='l' ? battleArt(boss) : '../'+boss.image+'?v='+IMG_V;
     if (boss.id === 'pure_brothers') img.dataset.normalSrc=img.src;
     img.alt=boss.name+' 보스';
     img.onerror=()=>{bossArt.textContent='이미지를 불러오지 못했어요';};
     bossArt.appendChild(img);
+    if (boss.id === 'l') mountCombatCharacter(bossArt, boss);
   } else {
     bossArt.textContent=boss.name.includes('코끼리')?'🐘':boss.name.includes('곰')?'🐻':boss.name.includes('호랑이')?'🐯':'🦣';
   }
@@ -260,6 +262,7 @@ function updateArenaBars() {
 }
 function setArenaMole(m) {
   const art=$('arenaMoleArt');
+  document.querySelector('.arena').dataset.activeMole = m.id;
   art.replaceChildren();
   const img=document.createElement('img');
   img.src=`${battleArt(m)}?v=${IMG_V}`;
@@ -343,20 +346,35 @@ async function animateCombat(attacker, damage, targetName, onImpact, {phase='att
   const hero=attacker==='mole';
   const actor=$(hero?'arenaMole':'arenaBoss');
   const target=$(hero?'arenaBoss':'arenaMole');
-  // MOLEMALL_CHARACTER_FX: play the same motion as in the card dictionary.
-  if(hero && selectedMole){
-    if(!muted) playCharacterSound(selectedMole,'attack');
-    await animateCharacter(selectedMole,{root:$('arenaMoleArt'),opponentName:boss.name,phase,diceSum:fxDice.sum,doubles:fxDice.doubles,duration:quick?220:750});
-  } else if(!hero && selectedMole?.id==='kade' && fxDice.doubles){
-    await animateCharacter(selectedMole,{root:$('arenaMoleArt'),opponentName:boss.name,phase:'special',doubles:true,duration:580});
+  const duration = quick ? 480 : phase === 'special' ? 1250 : 1050;
+  const fighter = hero ? selectedMole : boss;
+  const hasCharacterFx = hero || boss.id === 'l';
+  const art = $(hero ? 'arenaMoleArt' : 'arenaBossArt');
+  let finishFx;
+  let finishDefense;
+  if (hasCharacterFx) {
+    if (!muted) playCharacterSound(fighter, phase);
+    finishFx = animateCharacter(fighter, {
+      root: art, opponentName: hero ? boss.name : selectedMole.name, phase, duration,
+      diceSum: hero ? fxDice.sum : null, doubles: hero && fxDice.doubles,
+      previousDiceSum: hero ? lastBossDiceSum : null
+    });
   }
-
+  if (!hero && selectedMole?.id === 'kade' && fxDice.doubles) {
+    finishDefense = animateCharacter(selectedMole, {
+      root: $('arenaMoleArt'), opponentName: boss.name, phase: 'special', duration
+    });
+  }
   $('phaseBadge').textContent=hero?'두더지 공격':'보스 반격';
   $('arenaStatus').textContent=hero?`${selectedMole.name}의 공격!`:`${boss.name}의 반격!`;
-  actor.classList.remove('attack'); target.classList.remove('hit');
-  void actor.offsetWidth;
-  actor.classList.add('attack');
-  await wait(quick?100:340);
+  actor.classList.remove('attack');
+  target.classList.remove('hit');
+  if (!hasCharacterFx) {
+    void actor.offsetWidth;
+    actor.classList.add('attack');
+  }
+  const impactTime = Math.round(hasCharacterFx ? duration * .68 : 340);
+  await wait(impactTime);
   target.classList.add('hit');
   onImpact?.();
   if (damage > 0) {
@@ -372,7 +390,9 @@ async function animateCombat(attacker, damage, targetName, onImpact, {phase='att
   floater.style.left=hero?'64%':'15%';
   floater.classList.remove('show');void floater.offsetWidth;floater.classList.add('show');
   $('arenaStatus').textContent=`${targetName} ${fmt(damage)} 피해!`;
-  await wait(quick?220:600);
+  await wait(hasCharacterFx ? duration - impactTime + (quick ? 75 : 230) : 600);
+  finishFx?.();
+  finishDefense?.();
   actor.classList.remove('attack');target.classList.remove('hit');floater.classList.remove('show');$('impactBurst').classList.remove('show');
 }
 
@@ -539,14 +559,7 @@ async function turn() {
     const cameo=resolveAttack(summoned,boss,m1,m2,null,{lastOpponentDiceSum:lastBossDiceSum});
     step(`⚡ ${mole.name} 더블 특수: ${summoned.name} 소환!`);
     log(`<span class="tag">🐾 Z 특수 · ${m1}+${m2}: 헤더가 등장해 함께 공격!</span>`);
-    const summonedActor=document.createElement('img');
-    summonedActor.src='../assets/moles/plush/header.png';
-    summonedActor.alt='헤더 두더지의 소환 공격';
-    summonedActor.className='z-heather-cameo';
-    $('arenaMoleArt').appendChild(summonedActor);
-    try {
-      await animateCombat('mole',cameo.damage,boss.name,()=>hitBoss(cameo.damage),{phase:'special'});
-    } finally { summonedActor.remove(); }
+    await animateCombat('mole',cameo.damage,boss.name,()=>hitBoss(cameo.damage),{phase:'special'});
     log(`💥 <b>헤더 소환 공격</b> · ${fmt(cameo.damage)} 피해`);
     if(bossHp<=0){step(`🎉 LV${boss.level} 사냥 성공!`);log(`🎉 <b>LV${boss.level} ${boss.name}</b> 사냥 성공!`);return end(true);}
   }

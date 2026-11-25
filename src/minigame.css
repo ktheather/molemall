@@ -145,3 +145,8 @@ kbd{font:inherit;margin-left:auto;font-size:14px;opacity:.75}
 .z-heather-cameo{position:absolute;z-index:30;left:-25%;bottom:-2%;width:70%;max-height:90%;object-fit:contain;filter:drop-shadow(0 0 22px #ffbe5b);animation:zHeatherSummon 1.25s ease-in-out both;pointer-events:none}
 @keyframes zHeatherSummon{0%{opacity:0;transform:translateX(-90%) scale(.55)}20%{opacity:1;transform:translateX(0) scale(1.1)}65%{opacity:1;transform:translateX(45%) scale(1.05)}100%{opacity:0;transform:translateX(110%) scale(.8)}}
 @media(prefers-reduced-motion:reduce){.z-heather-cameo{animation:none;opacity:1}}
+/* Keep the plush weapon larger than the player sprite and clear of the HP controls. */
+#arenaMoleArt.mfx-battle-root { --mfx-prop-size: clamp(125px, 28vw, 420px); }
+#arenaBossArt.mfx-l { --mfx-prop-size: clamp(135px, 28vw, 420px); }
+.arena[data-active-mole="sally"] { background-image: linear-gradient(#32152332,#32152355), url('../assets/scenes/sally-gold-vault.webp'); }
+#arenaBoss .aiden-jellyfish-orbit { width: 53%; max-width: 320px; }
