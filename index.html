@@ -27,6 +27,10 @@
     .zone:hover::before,.zone:focus-visible::before,.zone:focus-within::before,.zone.is-open::before {border-color:#ffe1a849;box-shadow:0 0 30px #f4c26b4a, inset 0 0 20px #f4c26b18;background:radial-gradient(ellipse,#ffe4a612,transparent 70%)}
     .zone:focus-visible {outline:2px solid #ffe0a6;outline-offset:4px;border-radius:20px}
     .zone-cards {left:0%;top:59%;width:43%;height:36%}
+    .zone-arcade{left:67%;top:31%;width:24%;height:25%;z-index:6;display:flex;align-items:end;justify-content:center;padding-bottom:2%}
+    .zone-arcade::before{border-radius:24px}
+    .arcade-label{pointer-events:none;display:block;text-align:center;background:#281020d9;border:1px solid #e8bf79;border-radius:12px;padding:6px 12px;font-weight:900;font-size:clamp(10px,1.1vw,15px);color:#ffe3a9;text-shadow:0 2px 4px #1f0817;box-shadow:0 0 18px #e5ac5755}
+    .arcade-label small{display:block;font-size:clamp(7px,.65vw,9px);color:#f2c6a6}
     .zone-clover {left:0%;top:37%;width:7%;height:17%;border-radius:50%}
     .zone-star {right:0%;top:37%;width:7%;height:17%;border-radius:50%}
     .zone-hunt {left:61%;top:56%;width:39%;height:38%}
@@ -78,6 +82,7 @@
     <span><b>두더지몰</b><small>PLUSH CASINO</small></span>
    </div>
    <nav aria-label="카지노 기구 선택">
+     <a class="zone zone-arcade" href="/arcade/" aria-label="오른쪽 슬롯머신: 랜덤 단판 미니게임 4종"><span class="arcade-label">🎰 PLUSH ARCADE<small>랜덤 단판 미니게임 · 4종</small></span></a>
      <a class="zone zone-cards" href="/battle/" aria-label="왼쪽 카드 테이블: 카드게임">
        <span class="hint single-hint"><span class="hint-name">🃏 카드게임</span><span class="hint-sub">카드 배틀 입장</span></span>
      </a>
@@ -97,6 +102,7 @@
    <p class="hover-help">✦ 카드 테이블 · 클로버 조명 · 별 조명 · 룰렛 · 중앙 행운 기구를 선택하세요 ✦</p>
   </section>
   <details class="mobile-dock"><summary>✦ 게임 메뉴</summary><nav class="mobile-links" aria-label="모바일 게임 메뉴">
+    <strong>오른쪽 슬롯머신</strong><a href="/arcade/">🎰 PLUSH ARCADE · 랜덤 단판 4종</a>
     <strong>♠ 카드 테이블</strong>
     <a href="/battle/">🃏 카드게임</a>
     <strong>조명 사전</strong>
