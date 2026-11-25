@@ -1,0 +1,30 @@
+name: Deploy Molemall to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: molemall-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check game source
+        run: |
+          test -f index.html || { echo "Missing root index.html. Upload the unpacked Molemall game files to repository root."; exit 1; }
+
+      - name: Deploy existing Pages project
+        run: npx --yes wrangler@4 pages deploy . --project-name=molemall-beta --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
