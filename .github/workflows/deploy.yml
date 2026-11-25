@@ -21,10 +21,16 @@ jobs:
 
       - name: Check game source
         run: |
-          test -f index.html || { echo "Missing root index.html. Upload the unpacked Molemall game files to repository root."; exit 1; }
+          test -f index.html || { echo "Missing root index.html."; exit 1; }
+
+      - name: Prepare deploy directory (exclude archives and Git metadata)
+        run: |
+          mkdir -p deploy-dist
+          rsync -a --exclude '.git/' --exclude '.github/' --exclude 'deploy-dist/' --exclude '*.zip' ./ deploy-dist/
+          test -f deploy-dist/index.html
 
       - name: Deploy existing Pages project
-        run: npx --yes wrangler@4 pages deploy . --project-name=molemall-beta --branch=main
+        run: npx --yes wrangler@4 pages deploy deploy-dist --project-name=molemall-beta --branch=main
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
