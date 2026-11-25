@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1b0b16">
+  <meta name="description" content="두더지몰 황금 카지노 — 테이블을 선택하여 카드 배틀, 카드 사전, 보스 사전, 거대 동물 사냥, 포춘쿠키에 입장하세요.">
+  <title>두더지몰 | 황금 카지노 라운지</title>
+  <link rel="preload" as="image" href="/assets/scenes/casino-moles-gold.webp">
+  <style>
+    :root {--gold:#ffe4ad;--gold2:#b57b37;--burgundy:#431522;--cream:#fff4dc}
+    * {box-sizing:border-box}
+    html,body {margin:0;min-width:300px}
+    body {background:#150914;color:var(--cream);font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif}
+    a {color:inherit;text-decoration:none}
+    .lobby {min-height:100svh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse,#442017 0,#170713 72%)}
+    .scene {position:relative;width:min(100%,177.58svh);aspect-ratio:1648/928;flex:none;background:#2a101a url('/assets/scenes/casino-moles-gold.webp') center/100% 100% no-repeat;isolation:isolate;overflow:visible}
+    .scene::before {content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(10,5,13,.16),transparent 28%,transparent 70%,rgba(10,5,13,.08))}
+    .identity {position:absolute;left:2%;top:2.2%;z-index:7;display:flex;align-items:center;gap:10px;padding:6px 15px 7px 9px;border:1px solid #e8bc7844;border-radius:999px;background:#290e1d9c;box-shadow:0 5px 18px #15030b66;backdrop-filter:blur(6px)}
+    .identity-icon {width:32px;height:32px;filter:drop-shadow(0 1px 5px #f7b45891)}
+    .identity b {font-size:clamp(14px,1.5vw,23px);letter-spacing:-.05em;color:#ffebbb;font-family:Georgia,"Noto Serif KR",serif;text-shadow:0 2px 7px #170a10}
+    .identity small {display:block;font-family:Georgia,serif;font-size:clamp(7px,.65vw,10px);letter-spacing:.23em;color:#e2ba71}
+    .hover-help {position:absolute;left:50%;bottom:1.8%;transform:translateX(-50%);z-index:1;margin:0;padding:6px 13px;white-space:nowrap;color:#f4cf9a;font-size:clamp(9px,.87vw,12px);letter-spacing:.03em;text-shadow:0 2px 7px #14050c;background:#200b18a6;border:1px solid #cb934043;border-radius:100px;pointer-events:none;opacity:.85}
+    /* All hit targets are physically positioned on the scene's actual objects. */
+    .zone {position:absolute;z-index:4;display:block;background:transparent;border:0;outline-offset:2px;color:inherit;cursor:pointer}
+    .zone::before {content:"";position:absolute;inset:3%;pointer-events:none;border-radius:50%;border:1.5px solid #ffe1a800;background:radial-gradient(ellipse,rgba(255,209,101,.0),transparent 70%);transition:border-color .25s,background .25s,box-shadow .25s}
+    .zone:hover::before,.zone:focus-visible::before,.zone:focus-within::before,.zone.is-open::before {border-color:#ffe1a849;box-shadow:0 0 30px #f4c26b4a, inset 0 0 20px #f4c26b18;background:radial-gradient(ellipse,#ffe4a612,transparent 70%)}
+    .zone:focus-visible {outline:2px solid #ffe0a6;outline-offset:4px;border-radius:20px}
+    .zone-cards {left:0%;top:59%;width:43%;height:36%}
+    .zone-hunt {left:61%;top:56%;width:39%;height:38%}
+    .zone-fortune {left:38.5%;top:26.5%;width:23%;height:39%}
+    .hint {position:absolute;left:50%;z-index:5;transform:translate(-50%,12px);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .19s,transform .19s,visibility .19s;background:linear-gradient(145deg,#4b1726f2,#210c1bf4);color:#ffeed2;box-shadow:0 13px 35px #10050cbf,0 0 20px #ffc46d45;border:1.5px solid #f8cf85;border-radius:15px;backdrop-filter:blur(8px);text-align:center;white-space:nowrap}
+    .zone:is(:hover,:focus-visible,:focus-within,.is-open) .hint {opacity:1;visibility:visible;transform:translate(-50%,0);pointer-events:auto}
+    .hint-name {display:block;font-weight:900;font-size:clamp(13px,1.15vw,17px);letter-spacing:-.03em}
+    .hint-sub {display:block;margin-top:2px;font-size:clamp(10px,.84vw,12px);color:#edc89f}
+    .single-hint {top:-6%;padding:12px 20px}
+    .zone-fortune .single-hint {top:-6%}
+    .zone-hunt .single-hint {top:-13%}
+    .table-menu {top:-65%;width:clamp(230px,19vw,310px);padding:12px;text-align:left}
+    .table-menu .group-title {display:block;padding:2px 7px 9px;color:#ffd18d;font-size:12px;font-weight:850;letter-spacing:.05em}
+    .table-menu a {display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-radius:10px;border:1px solid transparent;white-space:nowrap;transition:background .15s,border-color .15s,transform .15s}
+    .table-menu a:hover,.table-menu a:focus-visible {background:#ffc76d20;border-color:#ffd3937d;transform:translateX(3px);outline:0}
+    .table-menu a span {font-size:13px;font-weight:800}
+    .table-menu a small {font-size:10px;color:#d8b198}
+    .table-menu a:last-child {margin-bottom:0}
+    .mobile-dock {display:none}
+    @media(max-width:850px) and (min-width:641px){.table-menu{top:-80%;width:245px}.identity{gap:6px}.identity-icon{width:26px;height:26px}.hover-help{bottom:.6%}}
+    /* A phone has no hover: one unobtrusive disclosure button provides the same 5 routes. */
+    @media(max-width:640px){
+      .lobby{display:block;min-height:100svh}
+      .scene{height:84svh;min-height:500px;width:100%;aspect-ratio:auto;background-size:auto 100%;background-position:center}
+      .scene::before{background:linear-gradient(180deg,#180a1880,transparent 32%,transparent 72%,#17091566)}
+      .identity{left:13px;top:15px;padding:6px 12px}
+      .identity b{font-size:19px}.identity small{font-size:8px}
+      .scene nav[aria-label="카지노 기구 선택"] {display:none}
+      .hover-help{bottom:9px;font-size:11px;white-space:normal;text-align:center;width:calc(100% - 30px)}
+      .mobile-dock{display:block;position:fixed;z-index:15;right:15px;bottom:18px}
+      .mobile-dock summary{list-style:none;cursor:pointer;border-radius:100px;padding:13px 18px;background:linear-gradient(135deg,#f7d999,#cb8a3c);box-shadow:0 8px 30px #14040cd6;color:#30131d;border:2px solid #fff1c2;font-weight:950;font-size:13px}
+      .mobile-dock summary::-webkit-details-marker{display:none}
+      .mobile-dock[open] summary{border-radius:100px 100px 12px 12px}
+      .mobile-links{position:absolute;right:0;bottom:100%;width:min(310px,calc(100vw - 30px));margin-bottom:9px;padding:10px;background:#2c0e20f7;border:1px solid #dfaf68;box-shadow:0 15px 38px #050104d9;backdrop-filter:blur(14px);border-radius:16px;display:grid;gap:4px}
+      .mobile-links strong{font-size:12px;color:#f7c579;padding:8px 8px 4px}
+      .mobile-links a{display:flex;gap:10px;align-items:center;border-radius:9px;padding:12px 14px;font-size:14px;font-weight:800}
+      .mobile-links a:hover,.mobile-links a:focus-visible{background:#f1c7782b;outline:1px solid #f7c77f}
+    }
+    @media(prefers-reduced-motion:reduce){*,*::before{transition:none!important}}
+  </style>
+</head>
+<body>
+ <main class="lobby">
+  <section class="scene" aria-label="금빛 두더지 문장으로 장식한 카지노 라운지. 카드 테이블, 룰렛 테이블, 중앙 행운 기구를 선택하세요.">
+   <div class="identity" aria-label="두더지몰 PLUSH CASINO">
+    <svg class="identity-icon" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="g" x2=".8" y2="1"><stop stop-color="#fff1bd"/><stop offset=".55" stop-color="#ffc76a"/><stop offset="1" stop-color="#a66a27"/></linearGradient></defs><path fill="url(#g)" stroke="#ffe8ad" stroke-width="2" d="M16 52C22 32 36 18 57 19C68 19 75 16 82 12C76 28 67 44 62 53C58 68 50 78 35 76C21 75 13 68 16 52Z"/><circle cx="47" cy="41" r="3.8" fill="#9e483b"/></svg>
+    <span><b>두더지몰</b><small>PLUSH CASINO</small></span>
+   </div>
+   <nav aria-label="카지노 기구 선택">
+     <div class="zone zone-cards" tabindex="0" role="group" aria-expanded="false" aria-label="왼쪽 카드 테이블: 카드 배틀, 카드 사전, 보스 사전. 마우스를 올리거나 포커스하세요.">
+       <div class="hint table-menu" aria-label="카드 테이블 메뉴">
+         <span class="group-title">♠ 카드 테이블</span>
+         <a href="/battle/"><span>🃏 카드 배틀</span><small>2인 대전</small></a>
+         <a href="/cards/"><span>📖 카드 사전</span><small>두더지 카드</small></a>
+         <a href="/bosses/"><span>📚 보스 사전</span><small>단계별 보스</small></a>
+       </div>
+     </div>
+     <a class="zone zone-hunt" href="/minigame/" aria-label="오른쪽 룰렛 테이블: 거대 동물 사냥">
+       <span class="hint single-hint"><span class="hint-name">🎯 거대 동물 사냥</span><span class="hint-sub">보스와 전투하기</span></span>
+     </a>
+     <a class="zone zone-fortune" href="/fortune/" aria-label="중앙 황금 행운 기구: 오늘은 두더지굴! 포춘쿠키 운세">
+       <span class="hint single-hint"><span class="hint-name">🥠 오늘은 두더지굴!</span><span class="hint-sub">포춘쿠키 운세 뽑기</span></span>
+     </a>
+   </nav>
+   <p class="hover-help">✦ 테이블과 중앙 행운 기구에 마우스를 올려보세요 ✦</p>
+  </section>
+  <details class="mobile-dock"><summary>✦ 게임 메뉴</summary><nav class="mobile-links" aria-label="모바일 게임 메뉴">
+    <strong>♠ 카드 테이블</strong>
+    <a href="/battle/">🃏 카드 배틀</a>
+    <a href="/cards/">📖 카드 사전</a>
+    <a href="/bosses/">📚 보스 사전</a>
+    <strong>다른 게임</strong>
+    <a href="/minigame/">🎯 거대 동물 사냥</a>
+    <a href="/fortune/">🥠 오늘은 두더지굴!</a>
+  </nav></details>
+ </main>
+ <script>
+   const table=document.querySelector('.zone-cards');
+   function showTable(expanded){table.classList.toggle('is-open',expanded);table.setAttribute('aria-expanded',String(expanded));}
+   table.addEventListener('click',function(e){if(e.target.closest('a'))return;showTable(!table.classList.contains('is-open'));});
+   table.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){if(e.target!==table)return;e.preventDefault();showTable(!table.classList.contains('is-open'));}});
+   document.addEventListener('keydown',function(e){
+     if(e.key!=='Escape')return;
+     showTable(false);
+     let d=document.querySelector('.mobile-dock[open]');if(d){d.open=false;e.preventDefault()}
+     if(document.activeElement?.classList?.contains('zone-cards'))document.activeElement.blur();
+   });
+   document.addEventListener('pointerdown',function(e){
+     let d=document.querySelector('.mobile-dock[open]');if(d&&!d.contains(e.target))d.open=false;
+     if(!table.contains(e.target))showTable(false);
+   });
+ </script>
+</body>
+</html>

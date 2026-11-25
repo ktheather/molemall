@@ -1,0 +1,147 @@
+/* Plush Battle: independent stage, full-body sprites, live controls. */
+:root{--ink:#503b38;--pink:#c84e70;--paper:#fff8f3;--line:#d3b2a9;font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;color:var(--ink);font-size:14px}
+*{box-sizing:border-box}body{margin:0;background:#f4e9e5;background-image:radial-gradient(#c9a89922 1px,transparent 1px);background-size:5px 5px}
+button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #a62d59;outline-offset:4px}button:disabled{opacity:.48;cursor:not-allowed}button:active:not(:disabled){transform:translateY(2px)}[hidden]{display:none!important}h1,h2,p{margin:0}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.game-shell{max-width:1680px;margin:auto;padding:12px 20px 10px}
+.game-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:42px;margin-bottom:10px}
+.home-link{text-decoration:none;color:#70564e;font-weight:800;font-size:13px;white-space:nowrap}
+.game-links{display:flex;gap:12px;align-items:center}
+.boss-path{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;min-width:0}
+.boss-stop{border:1px solid #ddc8c0;background:#fff9f4;color:#846b60;border-radius:20px;padding:8px 15px;font-size:12px;box-shadow:0 2px 0 #d6bfb6;white-space:nowrap;transition:background .15s}
+.boss-stop small{font-size:9px;margin-right:3px;color:#a6897c}
+.boss-stop.current{background:#a8415c;border-color:#8c3048;color:white;font-weight:800;box-shadow:0 2px 0 #7e2e43}.boss-stop.current small{color:#ffced8}
+.boss-stop.cleared:not(.current){border-color:#9cae8d;color:#65744e}
+.boss-stop.locked{opacity:.55;background:#eee4df;box-shadow:none}.lock-icon{font-size:10px}
+.sound-btn{border:1px solid #d8bfb5;border-radius:18px;color:#805e53;background:#fff9f3;padding:8px 12px;font-size:12px;white-space:nowrap}
+.arena{position:relative;display:grid;grid-template-columns:clamp(180px,17vw,256px) minmax(0,1fr);gap:18px;padding:20px;height:calc(100dvh - 112px);min-height:660px;max-height:940px;border:1px solid #dac2b1;border-radius:24px;background:#c7d4a2 url('../assets/scenes/plush-meadow.png') center/cover;box-shadow:0 8px 24px #79584630;isolation:isolate;overflow:clip}
+.arena:before{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 #fff7,inset 0 -35px 45px #62432b13;pointer-events:none;z-index:-1}
+.arena[data-boss="dinosaur"]{background-image:url('../assets/scenes/felt-sunset-cave.png');background-color:#5a4354}
+.arena[data-boss="bori"]{background-image:url('../assets/scenes/felt-turquoise-beach.png');background-color:#bedbd1}
+.arena[data-boss="taetiseo"]{background-image:url('../assets/scenes/plush-junkyard.png');background-color:#9e8471}
+.control-panel{z-index:10;min-height:0;display:flex;flex-direction:column;gap:9px;padding:13px;background:linear-gradient(100deg,#fffaf5f7,#fff4f1ef);border:3px solid #fff9f5;border-radius:19px;outline:1px solid #e3c5b8;box-shadow:4px 5px 0 #ab78613a,0 10px 26px #60463329}
+.card-stage{position:relative;flex-shrink:0;min-width:0}
+.section-label{display:flex;justify-content:space-between;align-items:center;margin:0 2px 7px;font-size:9px;color:#9f7c6d;font-weight:700;letter-spacing:.2px}#cardState{color:#bd5773}
+.card{border:2px solid #70504c;border-radius:13px;padding:8px;background:linear-gradient(160deg,#fffaf6,#fff4f2);box-shadow:0 0 0 3px #fffdf9,0 0 0 4px #bd9d8e;display:grid;grid-template-rows:auto minmax(90px,1fr) auto auto;height:clamp(230px,32vh,310px);min-width:0}
+.card h2{text-align:center;border-bottom:1px solid #92756d;padding-bottom:5px;font-size:17px;font-weight:800;line-height:1.2;letter-spacing:1px}
+.card-art{display:grid;place-items:center;min-height:0;padding:5px 0}.card-art img{width:100%;height:100%;min-height:0;object-fit:contain;object-position:center;display:block}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:3px 11px;font-size:11px}.stats span{display:flex;justify-content:space-between;gap:4px;white-space:nowrap}.stats b{color:#d84276;font-size:12px;font-weight:800}
+.card .note{border-top:1px dashed #dec7be;padding-top:5px;margin-top:6px;text-align:center;font-size:9px;color:#8e7168;line-height:1.3}
+.card.gold{border-color:#b78926;box-shadow:0 0 0 2px #fff2ae,0 0 0 4px #b88d3c;background:linear-gradient(145deg,#fffdf0,#ffedbb)}.card.gold h2{border-color:#c99b36;color:#81530e}
+.stage{position:absolute;inset:37px -2px 42px;display:none;place-items:center;border-radius:10px;background:#fff3e4ed;backdrop-filter:blur(3px);box-shadow:inset 0 0 22px #df9f9450}.stage:has(.deck),.stage:has(.rolling){display:grid}#stageVisual{text-align:center}
+.deck{position:relative;width:150px;height:130px}.deck i{position:absolute;left:47px;top:22px;width:58px;height:87px;border:3px solid #fff4ee;border-radius:9px;background:repeating-linear-gradient(45deg,#d06d8f,#d06d8f 5px,#e4a0b6 5px,#e4a0b6 7px);box-shadow:2px 3px 0 #ad496d;animation:shuffle .3s ease-in-out infinite alternate}
+.deck i:after{content:'✦';display:grid;place-items:center;height:100%;font-size:33px;color:#fff5ea;font-style:normal}.deck i:nth-child(2){animation-delay:-.2s}.deck i:nth-child(3){animation-delay:-.4s}
+.rolling{display:flex;gap:15px;align-items:center;justify-content:center;height:120px}.rolling span{width:54px;height:54px;display:grid;place-items:center;background:#fff9eb;border:2px solid #b78c73;border-radius:12px;font-size:44px;color:#6e4e43;box-shadow:0 6px 0 #b08d75;animation:tumble .35s ease-in-out infinite}.rolling span:nth-child(2){animation-delay:-.17s}
+.actions{display:flex;flex-direction:column;gap:7px;margin-top:2px;flex-shrink:0}
+.actions button{display:flex;align-items:center;gap:6px;width:100%;border:1px solid #d3a866;border-radius:10px;background:linear-gradient(#ffe9b4,#ffdc90);padding:7px 10px;font-size:12px;font-weight:800;color:#694630;box-shadow:0 3px 0 #c9a775,inset 0 1px 0 #fff8}
+.actions button:first-child{background:linear-gradient(#ffe0e9,#ffc3d6);border-color:#d999ad;box-shadow:0 3px 0 #cb8ea1,inset 0 1px 0 #fff8}
+.button-icon{font-size:27px;line-height:1;width:29px;text-align:center;color:#99576a;text-shadow:1px 1px #fff}.actions button:last-child .button-icon{color:#775544}
+kbd{font:inherit;margin-left:auto;font-size:14px;opacity:.75}
+.dice-tray{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px 0 1px;flex-shrink:0}.dice{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center}.dice-label{font-size:9px;color:#9c8074;text-align:center;width:100%}
+.die{display:grid;place-items:center;width:24px;height:24px;font-size:23px;line-height:1;border-radius:5px;border:1px solid #d1b6a6;background:#fffdf8;box-shadow:0 2px 0 #d5bfb0;color:#7a574c}
+.boss-dice .die{background:#ad6778;color:#fff9ef;border-color:#935061;box-shadow:0 2px 0 #81485a}.dice-sum{font-size:9px;color:#937369;white-space:nowrap;width:100%;text-align:center;line-height:1.4}.die.rolling-die{animation:diceWobble .15s ease-in-out infinite alternate}
+.next-btn{background:#9baa72;color:white;border:1px solid #78884d;border-radius:9px;padding:8px;font-weight:800;box-shadow:0 3px #6b7c41}
+.paper-panel{min-height:0;border:1px solid #dfc9bf;border-radius:9px;padding:8px;background:#fff9f5b8}
+.paper-panel h2{display:flex;align-items:center;border-bottom:1px solid #ead9d2;padding-bottom:5px;font-size:10px;line-height:1.1;color:#79584f;flex-shrink:0}#turnLabel{font-size:8px;margin-left:auto;color:#ac897b;letter-spacing:.4px}
+#steps{flex:0 1 108px;min-height:76px;display:flex;flex-direction:column}#stepLines{font-size:10px;line-height:1.65;white-space:pre-line;overflow:auto;padding-top:5px;color:#86665c;scrollbar-width:thin;scrollbar-color:#d8b6a6 transparent}
+.log-panel{flex:1;min-height:95px;display:flex;flex-direction:column}#log{overflow:auto;min-height:0;font-size:10px;line-height:1.6;scrollbar-width:thin;scrollbar-color:#d8b6a6 transparent}
+.entry{padding:6px 0;border-bottom:1px dashed #ead7cd}.entry:first-child{color:#9b4a63}.entry-turn{display:block;font-size:8px;color:#ab897b;margin-bottom:1px}.calc{font-size:8px;color:#ac8d81;margin-top:3px}
+.tag{display:inline-block;font-size:9px;background:#f9dfe6;color:#ae4668;border-radius:4px;padding:1px 4px;margin:2px 0}.oil-tag{background:#fce3a0;color:#96671e}
+.battlefield{min-width:0;position:relative;height:100%}
+.battle-heading{position:absolute;inset:0 0 auto;display:flex;align-items:flex-start;justify-content:center;z-index:7;pointer-events:none}
+.plush-title{position:relative;transform:rotate(-4deg);border:2px solid #f8afbf;border-radius:28% 20% 30% 25%;background:linear-gradient(#ffeef0,#ffcbd6);box-shadow:0 4px 0 #b76c7a75,0 0 0 4px #fff5e9aa;outline:1px dashed #d38799;outline-offset:-7px;padding:17px 22px 12px;color:#813839;text-shadow:0 2px #fff3e7;white-space:nowrap}
+.plush-title>span{position:absolute;top:-9px;left:50%;transform:translateX(-50%) rotate(2deg);font-size:10px;font-weight:800;color:#fff3dd;background:#b55564;border-radius:12px;padding:2px 13px;text-shadow:none;letter-spacing:1px;box-shadow:0 0 0 2px #f5c6ce}
+.plush-title h1{font-size:clamp(20px,2.4vw,35px);line-height:1;font-family:ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif;font-weight:1000;letter-spacing:-1px}
+.boss-crest{position:absolute;right:0;top:4px;min-width:140px;border-radius:45% 45% 40% 40%;padding:18px 29px 12px;background:linear-gradient(#ffe9e9,#ffc4d2);border:2px solid #eeb7bd;outline:1px dashed #ca8b95;outline-offset:-7px;text-align:center;color:#9c3848;box-shadow:0 3px 0 #af70775e;transform:rotate(3deg)}
+.boss-crest>span{position:absolute;top:-11px;left:50%;transform:translateX(-50%) rotate(-3deg);font-family:Georgia,serif;font-weight:800;letter-spacing:1px;font-size:11px;color:#fff9e9;background:#b4505a;border:2px solid #ffdedb;border-radius:12px;padding:2px 12px}
+.boss-crest strong{font-size:25px;line-height:1;letter-spacing:2px;text-shadow:0 2px #fff6e8}.boss-crest i{position:absolute;font-size:12px;left:11px;top:24px;opacity:.6;font-style:normal}
+.health-panel{z-index:6;border:2px solid #fff8ec;outline:1px solid #dab6a0;border-radius:11px;background:#fff7e8f7;box-shadow:0 3px 0 #9d715544;padding:7px 10px}
+.boss-health{position:absolute;top:89px;left:29%;right:1%}
+.arena-hp{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;font-weight:800;margin-bottom:5px;color:#654934;line-height:1}.arena-hp>span{white-space:nowrap}
+#bossLevel{font-size:9px;background:#b1505e;color:#fff6e5;display:inline-block;padding:3px 8px;border-radius:10px;margin-right:3px;vertical-align:middle}#bossBarLabel{font-size:10px}
+.hpbar{height:10px;background:#e6bebb;border-radius:8px;box-shadow:inset 0 1px 3px #8f575433;overflow:hidden}.hpbar>div{height:100%;border-radius:8px;background:linear-gradient(#ff788f 0%,#f74d70 52%,#eb4166 52%,#fb6e8d);box-shadow:inset 0 1px 0 #ffc3d0;transition:width .45s ease-out}
+.arena-field{position:absolute;inset:153px 0 91px;isolation:isolate;overflow:visible}
+.fighter{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;transform-origin:center 90%;overflow:visible;z-index:2}
+.fighter:before{content:"";position:absolute;left:16%;right:16%;bottom:6%;height:7%;background:#4d382e40;border-radius:50%;filter:blur(8px);z-index:-1}
+#arenaMole{left:0;bottom:0;width:32%;height:64%;z-index:3}#arenaBoss{left:31%;bottom:0;width:60%;height:100%;z-index:2}
+.hero-art,.monster{width:100%;height:100%;min-height:0;display:flex;align-items:flex-end;justify-content:center;overflow:visible}
+.hero-art img,.monster img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;transform-origin:center 88%;filter:drop-shadow(0 5px 4px #47332927)}
+.hero-art img{animation:heroIdle 3s ease-in-out infinite}.monster img{animation:plushIdle 3.3s ease-in-out infinite}
+.name{flex-shrink:0;align-self:center;position:absolute;top:-16px;border-radius:9px;background:#fff7e6ec;border:1px solid #dabfa0;padding:4px 12px;font-size:10px;font-weight:800;color:#7e6049;box-shadow:0 2px 0 #896c4e21;z-index:4;white-space:nowrap}
+.bori-sprite{height:100%;width:auto;max-width:100%;aspect-ratio:12/13;background:url('../assets/bosses/bori-sprites.png') 0 0 / 800% 1100% no-repeat;filter:drop-shadow(0 5px 4px #47332927)}
+.passive-panel{position:absolute;right:1%;bottom:94px;width:17%;min-width:145px;z-index:6;border:2px solid #fff5dc;border-radius:14px;background:linear-gradient(135deg,#fff8de,#ffedb9);outline:1px solid #d9b271;box-shadow:0 4px 0 #a17a4550;padding:20px 11px 16px;transform:rotate(2deg);color:#765433}
+.passive-panel:after{content:"";position:absolute;inset:5px;border:1px dashed #cfb58799;border-radius:9px;pointer-events:none}
+.passive-ribbon{position:absolute;right:9px;top:-12px;transform:rotate(-2deg);border:2px solid #ffe2d2;border-radius:15px;background:#be6371;padding:3px 12px;color:#fff7e4;font-size:9px;font-weight:800;z-index:2;white-space:nowrap}
+.passive-panel h2{font-size:13px;margin-bottom:7px;color:#987034;letter-spacing:-.5px}.passive-panel p{font-size:10px;line-height:1.65;white-space:pre-line;word-break:keep-all}
+.passive-numbers{font-size:9px;display:flex;flex-direction:column;gap:4px;margin-top:8px;border-top:1px solid #d8bf8f;padding-top:7px;color:#ad7939}.passive-numbers strong{font-size:11px;color:#9e5c32}
+.oil-spot{display:none;position:absolute;right:6px;bottom:5px;width:25px;height:8px;border-radius:50%;background:#efc54b;box-shadow:inset 0 2px #ffe8a0;transform:rotate(-5deg)}.arena[data-boss="taetiseo"] .oil-spot{display:block}
+.den-health{position:absolute;left:0;bottom:29px;width:40%;min-width:220px;max-width:440px;padding:8px 11px}.den-health .hpbar{height:11px}.den-health .hpbar>div{background:linear-gradient(#ffabc2,#f06e9c 50%,#e85d91 50%,#f38eb0)}
+.battle-status{position:absolute;left:44%;right:0;bottom:24px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;z-index:6;pointer-events:none}
+#phaseBadge{font-size:10px;font-weight:800;background:#fff7e9ed;color:#a85a6d;border:1px solid #e3c3b0;border-radius:14px;padding:4px 11px;box-shadow:0 2px 0 #916a4833}
+#arenaStatus{font-size:11px;font-weight:700;color:#fff9ed;text-shadow:0 1px 4px #54351e,0 1px 2px #54351e;line-height:1.6}
+.scene-label{position:absolute;bottom:0;right:2%;font-size:9px;font-weight:800;letter-spacing:2px;color:#fff2ddb0;text-shadow:0 1px 3px #593a28}
+#damageFloat{position:absolute;top:38%;z-index:12;color:#dc465d;opacity:0;font-size:clamp(28px,4vw,55px);font-weight:950;text-shadow:2px 2px #fff8db,-2px -2px #fff8db,2px -2px #fff8db,-2px 2px #fff8db;pointer-events:none}#damageFloat.show{animation:damageRise .95s ease-out forwards}
+#impactBurst{position:absolute;top:48%;font-size:105px;line-height:1;color:#ffea93;text-shadow:0 0 9px #fff8da,0 0 26px #edb143;opacity:0;z-index:9;pointer-events:none}#impactBurst.show{animation:burst .6s ease-out forwards}
+#arenaMole.attack{animation:heroLunge .75s ease-in-out}#arenaBoss.attack{animation:bossLunge .75s ease-in-out}.fighter.hit{animation:hitShake .6s ease-in-out}.fighter.hit .monster img{animation:plushSquash .6s ease-in-out}
+.cotton-tears,.oil-drops{position:absolute;inset:0;pointer-events:none;z-index:7;overflow:visible}
+.cotton-tear{position:absolute;top:35%;left:30%;width:13px;height:17px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#fff8e8 60%,#d9e7e3);box-shadow:0 2px 4px #6f8b7440;opacity:0;--drift:8px;animation:cottonFall 1.4s ease-in forwards;animation-delay:var(--delay)}.cotton-tear.right{left:50%;--drift:-10px}
+.bori-fighter .cotton-tear{left:57%;top:23%}.bori-fighter .cotton-tear.right{left:70%;top:21%}
+.oil-drop{position:absolute;left:var(--x);top:24%;width:15px;height:23px;border-radius:65% 45% 55% 50%;background:radial-gradient(ellipse at 32% 24%,#fffae0 0 8%,#fff4ad 12%,#e7bf42 55%,#c99127 100%);border:1px solid #e4c364bb;box-shadow:inset 1px 1px 2px #fff7c8,1px 3px 3px #b47f193d;opacity:0;animation:oilDrip 1.65s ease-in forwards;animation-delay:var(--delay)}
+.oil-drop:nth-child(3n){top:40%;width:12px;height:18px}.oil-drop:nth-child(4n){top:52%;width:18px;height:25px}
+#oilPool{position:absolute;left:18%;right:13%;bottom:5%;height:8%;background:radial-gradient(ellipse,#e4b933ba 10%,#ffe1768a 70%,transparent 73%);border-radius:50%;box-shadow:inset 0 1px #fff4b4;opacity:0;z-index:-1;transform:scale(.6);pointer-events:none}
+#oilPool.show{animation:oilSpread 1.3s ease-out forwards}.oily .monster{filter:drop-shadow(0 0 6px #ffe99b88)}
+#resultBanner{position:absolute;left:17%;right:13%;top:35%;z-index:20;border:2px solid #fff4e4;border-radius:19px;background:#fff5e9f5;box-shadow:0 10px 40px #66493355;padding:25px;text-align:center;font-size:25px;font-weight:800;color:#a04e5e}#resultBanner small{display:block;margin-top:8px;font-size:12px;font-weight:400;color:#8b7061}
+.battle-details{margin:10px 4px 0;font-size:11px;color:#9a7d6f}.battle-details summary{cursor:pointer;width:fit-content;padding:3px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:25px;margin-top:10px;padding:20px;border:1px solid #ddc8bb;border-radius:12px;background:#fff9f2;line-height:1.8}
+.detail-grid h2{font-size:15px;margin-bottom:8px}.detail-grid .hpbar{max-width:220px}.detail-grid .stats{max-width:240px;margin-top:7px}.detail-grid .note,.detail-grid .hp{font-size:10px}.detail-grid small{color:#a18678}
+@keyframes shuffle{from{transform:translateX(-24px) rotate(-18deg)}to{transform:translateX(24px) rotate(18deg)}}
+@keyframes tumble{0%,100%{transform:translateY(0) rotate(-15deg)}50%{transform:translateY(-15px) rotate(35deg)}}
+@keyframes diceWobble{to{transform:translateY(-3px) rotate(7deg)}}
+@keyframes heroIdle{50%{transform:translateY(-3px) rotate(.5deg)}}
+@keyframes plushIdle{50%{transform:translateY(-5px) scale(1.012)}}
+@keyframes heroLunge{0%,100%{transform:translateX(0)}45%{transform:translateX(29%) rotate(6deg) scale(1.05)}65%{transform:translateX(24%)}}
+@keyframes bossLunge{0%,100%{transform:translateX(0)}45%{transform:translateX(-11%) rotate(-3deg)}65%{transform:translateX(-8%)}}
+@keyframes hitShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+@keyframes plushSquash{0%,100%{transform:scale(1)}40%{transform:scale(1.04,.95)}75%{transform:scale(.98,1.03)}}
+@keyframes damageRise{0%{opacity:0;transform:translateY(20px) scale(.6)}20%{opacity:1;transform:translateY(-4px) scale(1.15)}70%{opacity:1}100%{opacity:0;transform:translateY(-65px)}}
+@keyframes burst{0%{opacity:0;transform:scale(.3) rotate(0)}25%{opacity:1}100%{opacity:0;transform:scale(1.5) rotate(40deg)}}
+@keyframes cottonFall{0%{opacity:0;transform:translate(0,-6px) scale(.4)}15%{opacity:1;transform:scale(1)}65%{opacity:1}100%{opacity:0;transform:translate(var(--drift),95px) rotate(28deg) scale(.7)}}
+@keyframes oilDrip{0%{opacity:0;transform:translateY(-8px) scale(.3)}12%{opacity:1;transform:scale(1)}75%{opacity:.95}100%{opacity:0;transform:translate(var(--drift),155px) scale(.75,1.25)}}
+@keyframes oilSpread{0%{opacity:0;transform:scale(.6)}60%{opacity:1;transform:scale(1.08)}100%{opacity:.78;transform:scale(1)}}
+@media(min-width:1500px){.arena{grid-template-columns:260px minmax(0,1fr);gap:25px;padding:24px}.card{height:310px}.card h2{font-size:21px}.stats{font-size:13px}.stats b{font-size:15px}.actions button{font-size:14px}.arena-field{top:160px}.passive-panel{width:170px}.passive-panel p{font-size:12px}.passive-panel h2{font-size:16px}}
+@media(max-width:1100px){.game-shell{padding:10px}.arena{padding:14px;gap:13px;min-height:650px;grid-template-columns:184px minmax(0,1fr)}.control-panel{padding:10px;gap:8px}.plush-title{padding:17px 16px 10px;margin-right:20%}.boss-crest{min-width:110px;padding:17px 22px 10px}.boss-crest strong{font-size:20px}.boss-health{left:17%;top:80px}.arena-field{top:140px;bottom:108px}.passive-panel{width:132px;min-width:0;padding:17px 10px 12px;bottom:25px;right:0}.passive-panel h2{font-size:12px}.passive-panel p{font-size:9px}.passive-numbers{font-size:8px}.passive-numbers strong{font-size:10px}.den-health{bottom:28px;width:48%;min-width:0}.battle-status{left:0;right:0;bottom:0;flex-direction:row;justify-content:flex-start;gap:8px}.scene-label{display:none}#arenaStatus{font-size:10px}#arenaMole{width:34%;height:61%}#arenaBoss{left:30%;width:68%}.card{height:245px}.boss-stop{padding:7px 11px}.paper-panel{padding:7px}.actions button{font-size:11px}.stats{font-size:10px}}
+@media(max-width:740px){.game-shell{padding:8px}.game-toolbar{flex-wrap:wrap;gap:8px;margin-bottom:12px}.home-link{order:0}.sound-btn{order:1;margin-left:auto;font-size:10px}.boss-path{order:2;flex:1 0 100%;justify-content:center}.boss-stop{flex:1;padding:7px 4px;font-size:11px}.arena{display:flex;flex-direction:column;gap:16px;height:auto;max-height:none;min-height:0;padding:12px;border-radius:18px;background-position:center top;background-size:auto 520px;background-repeat:no-repeat;background-color:#dfceba}.battlefield{order:0;min-height:460px;height:460px}.control-panel{order:1;display:grid;grid-template-columns:137px minmax(0,1fr);gap:9px 13px;min-height:0;padding:12px;border-radius:15px}.card-stage{grid-column:1;grid-row:1/5}.card{height:244px;padding:6px}.card h2{font-size:16px}.stats{font-size:9px;gap:3px 7px}.stats b{font-size:11px}.card .note{font-size:8px}.section-label{font-size:8px}.actions{grid-column:2;grid-row:1}.actions button{padding:6px 8px;font-size:11px}.button-icon{font-size:24px;width:24px}.dice-tray{grid-column:2;grid-row:2;gap:5px;padding:1px 0}#steps{grid-column:2;grid-row:3;min-height:88px;max-height:120px}.log-panel{grid-column:1/3;grid-row:5;max-height:155px;min-height:110px}.next-btn{grid-column:2;grid-row:4}.plush-title{margin-right:25%;padding:15px 14px 11px;outline-offset:-5px}.plush-title h1{font-size:21px;letter-spacing:-1px}.plush-title>span{font-size:8px;padding:2px 10px}.boss-crest{min-width:95px;top:4px;padding:17px 16px 10px;outline-offset:-5px}.boss-crest strong{font-size:18px}.boss-crest>span{font-size:9px;padding:2px 9px}.boss-health{top:71px;left:12%;right:1%;padding:5px 8px}.arena-hp{font-size:9px;gap:4px}#bossBarLabel{font-size:9px}#bossLevel{font-size:8px;padding:2px 6px}.hpbar{height:8px}.arena-field{top:113px;bottom:150px;left:-4px;right:-4px}#arenaMole{width:35%;height:65%}#arenaBoss{left:29%;width:70%;height:100%}.name{top:-7px;font-size:8px;padding:3px 9px}.passive-panel{bottom:25px;right:0;width:123px;padding:14px 8px 10px;border-radius:10px;transform:rotate(1deg)}.passive-ribbon{font-size:8px;top:-11px;padding:3px 8px}.passive-panel h2{font-size:11px;margin-bottom:4px}.passive-panel p{font-size:8px;line-height:1.5}.passive-numbers{margin-top:5px;padding-top:4px;gap:2px}.passive-numbers strong{font-size:9px}.den-health{bottom:34px;width:57%;padding:6px 8px}.den-health .hpbar{height:9px}.battle-status{bottom:0;gap:5px}#phaseBadge{font-size:8px;padding:3px 8px}#arenaStatus{font-size:9px;line-height:1.4;text-align:left}#damageFloat{font-size:31px}#impactBurst{font-size:65px}.oil-drop{width:10px;height:15px}.oil-drop:nth-child(4n){width:12px;height:18px}#resultBanner{left:4%;right:4%;top:34%;padding:20px;font-size:20px}.detail-grid{grid-template-columns:1fr;padding:14px;gap:15px}.battle-details{font-size:10px}}
+@media(max-width:370px){.control-panel{grid-template-columns:118px minmax(0,1fr);gap:9px;padding:10px}.card{height:228px}.actions button{font-size:10px;padding:6px}.button-icon{width:20px}.plush-title h1{font-size:18px}.boss-crest{min-width:83px;padding:17px 13px 9px}.boss-crest strong{font-size:16px}.passive-panel{width:113px}.dice-sum{font-size:8px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}#damageFloat.show{opacity:1}#impactBurst.show{opacity:.7}.oil-drop{opacity:1;transform:translateY(15px)}#oilPool.show{opacity:.7;transform:scale(1)}}
+
+
+/* Keep the control log reachable on short laptop screens. */
+.control-panel{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#d8b6a6 transparent}
+@media(max-width:740px){.control-panel{overflow:visible}}
+
+/* Persistent Aiden jellyfish visual indicator, separate from boss passives. */
+.aiden-shock-active{border:1px solid #a695ff;background:linear-gradient(90deg,#303267,#44347b);border-radius:9px;padding:5px 8px;color:#e9e6ff;box-shadow:0 0 10px #7767ff66;font-weight:700}
+
+#arenaBoss .aiden-jellyfish-orbit{position:absolute;z-index:7;top:-18%;right:-12%;width:48%;max-width:185px;height:auto;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 12px #94bcff);animation:aiden-jellyfish-hover 2.6s ease-in-out infinite}
+@keyframes aiden-jellyfish-hover{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-12px) rotate(5deg)}}
+@media(prefers-reduced-motion:reduce){#arenaBoss .aiden-jellyfish-orbit{animation:none}}
+
+/* LV4 pure-brothers: independent server-room arena and comic sweat reaction. */
+.arena[data-boss="pure_brothers"]{background-image:linear-gradient(120deg,#283f6c38,#513b7938),url('../assets/scenes/plush-server-room.webp');background-color:#273c5c;background-position:center;background-size:cover}
+#arenaBoss.pure-brothers-fighter{left:24%;width:72%;height:93%}
+#arenaBoss.pure-brothers-fighter .monster img{object-fit:contain;object-position:center bottom;max-width:100%;max-height:100%;filter:drop-shadow(0 13px 10px #14264180)}
+#arenaBoss.pure-brothers-hurt .monster img{animation:pureBrothersWobble .9s ease-in-out}
+#arenaBoss.pure-brothers-hurt:after{content:'💦 😵 💦';position:absolute;top:6%;left:26%;width:60%;text-align:center;z-index:9;color:#dcf8ff;font-size:clamp(22px,3.1vw,43px);letter-spacing:.35em;text-shadow:0 2px 5px #155bb0aa;pointer-events:none;animation:brothersSweat .9s ease-out forwards}
+@keyframes pureBrothersWobble{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-4deg) scale(1.03)}45%{transform:rotate(4deg) scale(.97)}70%{transform:rotate(-2deg) scale(1.02)}}
+@keyframes brothersSweat{0%{opacity:0;transform:translateY(-18px) scale(.6)}25%{opacity:1;transform:translateY(0) scale(1.1)}75%{opacity:1}100%{opacity:0;transform:translateY(44px)}}
+@media(max-width:740px){#arenaBoss.pure-brothers-fighter{left:23%;width:75%;height:86%}.arena[data-boss="pure_brothers"]{background-size:auto 520px;background-position:center top}}
+@media(prefers-reduced-motion:reduce){#arenaBoss.pure-brothers-hurt .monster img,#arenaBoss.pure-brothers-hurt:after{animation:none}#arenaBoss.pure-brothers-hurt:after{opacity:1}}
+
+/* Last stage: L (snake in a plush mole mask). Stage before it is always Taetiseo. */
+.arena[data-boss="l"]{background-image:linear-gradient(110deg,#27162c70,#1d102655),url('../assets/scenes/serpent-theater.webp');background-color:#25122f;background-size:cover;background-position:center}
+#arenaBoss.l-final-fighter{left:29%;width:68%;height:94%;filter:drop-shadow(0 0 25px #c58df588)}
+#arenaBoss.l-final-fighter .monster img{object-fit:contain;max-height:100%;max-width:100%}
+#arenaBoss.l-final-fighter.hit:after{content:'🐍 ✦ 🐍';position:absolute;top:4%;left:26%;font-size:clamp(20px,2.5vw,35px);color:#bce5a6;text-shadow:0 0 18px #89f788;animation:bossLunge .8s ease-out;pointer-events:none}
+.z-heather-cameo{position:absolute;z-index:30;left:-25%;bottom:-2%;width:70%;max-height:90%;object-fit:contain;filter:drop-shadow(0 0 22px #ffbe5b);animation:zHeatherSummon 1.25s ease-in-out both;pointer-events:none}
+@keyframes zHeatherSummon{0%{opacity:0;transform:translateX(-90%) scale(.55)}20%{opacity:1;transform:translateX(0) scale(1.1)}65%{opacity:1;transform:translateX(45%) scale(1.05)}100%{opacity:0;transform:translateX(110%) scale(.8)}}
+@media(prefers-reduced-motion:reduce){.z-heather-cameo{animation:none;opacity:1}}

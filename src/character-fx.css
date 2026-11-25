@@ -1,0 +1,421 @@
+/* MOLEMALL character motion library: dictionary and battle use the same states. */
+:root { --mfx-cream:#fff3db; --mfx-wine:#33101e; --mfx-gold:#ecba72; }
+.mfx-card-tile { font-family:inherit; padding:0!important; border:2px solid #d5a56c!important; border-radius:16px!important; background:#220e1d!important; box-shadow:0 7px 22px #0009, inset 0 0 0 2px #6f3b40!important; overflow:hidden!important; display:flex!important; flex-direction:column!important; gap:0!important; cursor:pointer; text-align:left!important; width:190px!important; min-height:290px; height:auto!important; aspect-ratio: 18 / 28 !important; color:#fff!important; transition: transform .22s,filter .22s!important; }
+.mfx-card-tile:hover,.mfx-card-tile:focus-visible {transform:translateY(-6px) scale(1.025)!important;filter:brightness(1.06);outline:2px solid #ffd496;outline-offset:3px}
+.mfx-card-tile.gold { border-color:#ffd468!important; }
+.mfx-card-tile .mfx-cover {position:relative;flex:1;min-height:175px;overflow:hidden;background:radial-gradient(ellipse at 50% 35%, color-mix(in srgb,var(--mfx-accent),#28101e 74%),transparent 67%),linear-gradient(150deg,#502038 0%,#13091b 75%)}
+.mfx-card-tile .mfx-cover::after {content:'✧';position:absolute;top:8px;left:10px;color:#ffd88c;font-size:21px;animation:mfx-glimmer 3s ease-in-out infinite}
+.mfx-card-tile .mfx-cover img {position:absolute;inset:auto 0 0;width:auto!important;height:90%!important;max-height:100%;max-width:95%;object-fit:contain;object-position:center bottom;transform:none!important;margin:auto!important;filter:drop-shadow(0 8px 10px #0007)}
+.mfx-card-tile .mfx-mini-caption {position:absolute;bottom:4px;left:6px;right:6px;text-align:center;font-size:11px;color:#ffdcaa;text-shadow:0 2px 4px #000}
+.mfx-card-tile .mfx-mini-details {position:relative;z-index:2;background:linear-gradient(155deg,#fff3d7,#f4d5aa);color:#43221d;border-top:3px ridge #dda267;padding:8px 8px 7px;box-shadow:0 -3px 10px #0003}
+.mfx-card-tile .mfx-mini-name {font-size:18px;font-weight:900;line-height:1.2;margin:0 0 4px!important;border:0!important;padding:0!important;color:#301418}
+.mfx-card-tile .mfx-mini-nick {margin-left:4px;display:inline-block;padding:3px 6px;border-radius:100px;background:#bb633b;color:#fff0db;font-size:9px;vertical-align:middle}
+.mfx-card-tile .mfx-mini-stats {display:grid;grid-template-columns:repeat(2,1fr);gap:3px;margin-bottom:5px}
+.mfx-card-tile .mfx-mini-stats span {display:block;border-radius:6px;color:white;font-size:11px;padding:3px 4px;text-align:center;font-weight:800;white-space:nowrap}
+.mfx-card-tile .mfx-mini-stats span:nth-child(1){background:#a63a3b}.mfx-card-tile .mfx-mini-stats span:nth-child(2){background:#34699b}.mfx-card-tile .mfx-mini-stats span:nth-child(3){background:#956015}.mfx-card-tile .mfx-mini-stats span:nth-child(4){background:#a54877}
+.mfx-card-tile .mfx-mini-trait {font-size:10px;line-height:1.3;color:#584036;min-height:26px;max-height:42px;overflow:hidden}
+/* Dictionary detail screen. Distinct ID to avoid replacing legacy modals. */
+#mfx-detail-screen {position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:#08030ccc;backdrop-filter:blur(9px);padding:18px;color:#fff;}
+#mfx-detail-screen[hidden] {display:none!important}
+.mfx-modal {position:relative;width:min(1120px,100%);max-height:calc(100dvh - 36px);overflow:auto;display:grid;grid-template-columns:minmax(280px,.9fr) minmax(310px,1.1fr);gap:15px;border:2px solid #b98562;border-radius:24px;padding:25px;background:radial-gradient(ellipse at top,#683244,#2a1223 65%,#180e1c);box-shadow:0 28px 90px #000b,inset 0 0 0 4px #281421}
+.mfx-close-modal {position:sticky;top:0;grid-column:1/-1;justify-self:end;z-index:5;background:#f4c998;border:2px solid #fff3d8;color:#44212a;border-radius:100px;font:900 13px inherit;padding:7px 15px;cursor:pointer}
+.mfx-preview-card {min-width:0;border:3px solid #eac48b;border-radius:17px;overflow:hidden;box-shadow:0 6px 22px #0008;background:linear-gradient(#3d1025,#170d19);}
+.mfx-card-header {padding:8px 15px;background:linear-gradient(100deg,#5d2736,#261427);border-bottom:1px solid #a66f71;font-size:12px;letter-spacing:1.2px;color:#ffd39e;text-align:center}
+.mfx-card-nameplate {padding:9px 14px;background:linear-gradient(#fff7e6,#eed1a6);color:#33191e;}
+.mfx-card-nameplate h2 {margin:0!important;font-size:25px!important;color:#32151c}
+.mfx-card-nameplate small {display:inline-block;background:#9b453e;color:#fff5e7;border-radius:20px;font-weight:800;font-size:12px;padding:3px 9px;margin-left:5px}
+.mfx-details-panel {padding:12px 14px 14px;background:#fff0d6;color:#33202b}
+.mfx-card-statline {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.mfx-card-statline span {color:white;text-align:center;border-radius:9px;font-weight:800;font-size:12px;padding:6px 2px;white-space:nowrap}
+.mfx-card-statline span:nth-child(1){background:#a63a3b}.mfx-card-statline span:nth-child(2){background:#30679b}.mfx-card-statline span:nth-child(3){background:#a06a18}.mfx-card-statline span:nth-child(4){background:#ae4c83}
+.mfx-details-panel h3 {display:inline-block;margin:10px 0 5px;background:#b93938;color:white;font-size:14px;padding:6px 12px;border-radius:6px}
+.mfx-details-panel p {white-space:pre-wrap;font-size:12px;line-height:1.6;margin:4px 0;color:#36252a;overflow-wrap:anywhere}
+.mfx-details-panel .mfx-secret {background:#ffefec;padding:7px;border:1px dashed #c47666}
+.mfx-modal-side {display:flex;flex-direction:column;gap:12px;min-width:0}
+.mfx-modal-side h3 {margin:0;font-size:21px;color:#ffe0b7}
+.mfx-modal-side .mfx-subtext {font-size:12px;color:#f4cdd0;line-height:1.5}
+.mfx-modes {display:flex;gap:8px;flex-wrap:wrap}
+.mfx-modes button {font:800 13px inherit;border-radius:10px;border:1px solid #ac7a77;color:#fceac9;background:#401f31;padding:9px 12px;cursor:pointer}
+.mfx-modes button[aria-pressed=true] {background:#f0c793;border-color:#fff;color:#3c1825}
+.mfx-stage-box {border:2px solid #a36a69;border-radius:16px;overflow:hidden;min-height:245px;box-shadow:inset 0 0 14px #0007}
+.mfx-modal-side .mfx-scene {min-height:245px;height:100%;}
+.mfx-caption {background:#25101c;border:1px solid #754655;color:#ffe1b7;border-radius:9px;font-size:13px;padding:11px 13px;min-height:48px;line-height:1.5}
+.mfx-flow-panel {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mfx-flow-panel div {font-size:11px;text-align:center;background:#3c2230;border:1px solid #986774;color:#fbe9dd;padding:10px 6px;border-radius:10px;line-height:1.4}
+.mfx-flow-panel b {display:block;color:#f8be7a;font-size:14px;margin-bottom:4px}
+.mfx-opponent-picker {display:flex;align-items:center;gap:8px;font-size:12px;color:#ffe1b7}
+.mfx-opponent-picker select {font:inherit;color:#fff;background:#47243a;border:1px solid #a77872;border-radius:6px;padding:5px 8px}
+/* Reusable animated theatre scene */
+.mfx-scene {position:relative;isolation:isolate;overflow:hidden;min-height:340px;background:radial-gradient(ellipse at 50% 40%,color-mix(in srgb,var(--mfx-accent),transparent 72%),transparent 55%),repeating-radial-gradient(ellipse at center,#5d2942,#210f24 27%,#210f24 42%);--mfx-accent:#e1b565}
+.mfx-scene::after {content:'';position:absolute;z-index:-1;inset:0;pointer-events:none;background:linear-gradient(85deg, #12081780 0,transparent 15%,transparent 85%,#10081480 100%)}
+.mfx-scene .mfx-mole-img {position:absolute;z-index:2;width:auto;max-width:88%;height:87%;object-fit:contain;object-position:center bottom;bottom:0;left:50%;transform:translateX(-50%);filter:drop-shadow(0 8px 13px #0009);animation:mfx-breathe 3s ease-in-out infinite;}
+.mfx-scene.mfx-compact {min-height:180px}
+.mfx-sparkles {position:absolute;color:#fbd892;font-size:22px;letter-spacing:30px;top:12%;left:18%;text-shadow:0 0 8px orange;animation:mfx-glimmer 2.8s ease-in-out infinite;pointer-events:none}
+.mfx-floor {position:absolute;bottom:8%;left:18%;right:18%;height:18px;border-radius:50%;background:#0c0812b9;filter:blur(11px)}
+.mfx-orbit {position:absolute;z-index:6;inset:13% 20% 47%;pointer-events:none;animation:mfx-orbit 4.5s linear infinite;transform-origin:50% 70%}
+.mfx-toy {position:absolute;max-width:30%;max-height:55%;object-fit:contain;filter:drop-shadow(0 3px 5px #0009);animation:mfx-wobble 1.1s ease-in-out infinite alternate}
+.mfx-toy-red {left:-8%;top:-6%;transform:rotate(-13deg)}.mfx-toy-green {right:-8%;top:-10%;animation-delay:-.4s}
+.mfx-ghost {display:none;position:absolute;left:10%;top:8%;width:55%;height:68%;object-fit:contain;z-index:3;mix-blend-mode:screen;filter:grayscale(.2) contrast(1.35) drop-shadow(0 0 20px #f64b5c)}
+.mfx-star-eyes {display:none;position:absolute;top:36%;left:54%;z-index:5;font-size:30px;white-space:nowrap;color:#ffbb3f;text-shadow:0 0 7px #ffe07a,0 0 18px #ff4024}
+.mfx-attack-swish {position:absolute;pointer-events:none;opacity:0;z-index:7;left:15%;right:8%;top:30%;height:44%;border-right:10px solid #fff2a0;border-bottom:9px solid #f6a047;border-radius:70%;transform:skew(-22deg) rotate(-10deg) scale(.35);filter:drop-shadow(0 0 10px var(--mfx-accent))}
+.mfx-phase-attack .mfx-attack-swish,.mfx-phase-special .mfx-attack-swish {animation:mfx-swish .68s ease-out both}
+.mfx-scene.mfx-phase-attack .mfx-mole-img {animation:mfx-charge .75s cubic-bezier(.25,.1,.1,1) both}
+.mfx-scene.mfx-phase-special {background:radial-gradient(circle at 58% 50%,#9c273957,transparent 58%),linear-gradient(145deg,#592239,#110713)}
+.mfx-scene.mfx-phase-special .mfx-mole-img {animation:mfx-special-attack .84s ease-in-out both}
+.mfx-phase-special.mfx-jacob .mfx-ghost {display:block;animation:mfx-fade-clown .95s ease-in-out both}
+.mfx-phase-special.mfx-jacob .mfx-star-eyes {display:block;animation:mfx-eyes .9s ease-in-out .2s both}
+.mfx-phase-special.mfx-jacob .mfx-attack-swish {border-color:#ff4242;filter:drop-shadow(0 0 14px red)}
+.mfx-pig,.mfx-camera,.mfx-keyboard,.mfx-crown,.mfx-flag,.mfx-calculator,.mfx-bone,.mfx-guard,.mfx-cake {position:absolute;z-index:5;font-size:38px;filter:drop-shadow(0 5px 5px #0008)}
+.mfx-pig {left:13%;top:62%;animation:mfx-pet 2s ease-in-out infinite}.mfx-pig small {font-size:19px;vertical-align:top}
+.mfx-money,.mfx-concert,.mfx-keycaps,.mfx-gold-aura,.mfx-roar,.mfx-hearts,.mfx-magic {position:absolute;z-index:6;pointer-events:none;opacity:0;font-size:32px;color:#ffe7b8}
+.mfx-money {top:34%;left:6%;white-space:nowrap}.mfx-phase-attack.mfx-header .mfx-money,.mfx-phase-special.mfx-header .mfx-money {animation:mfx-fly-money .8s both}.mfx-phase-special.mfx-header {box-shadow:inset 0 0 100px 10px #ee214d98}
+.mfx-camera {right:12%;top:43%;animation:mfx-wobble 1s ease-in-out infinite}.mfx-flash {position:absolute;z-index:8;inset:0;pointer-events:none;background:#fff;opacity:0}
+.mfx-phase-attack.mfx-kimi .mfx-flash,.mfx-phase-special.mfx-kimi .mfx-flash {animation:mfx-camera-flash .6s both}.mfx-concert {left:10%;right:10%;top:12%;text-align:center}.mfx-phase-special.mfx-kimi .mfx-concert {animation:mfx-fly-money .8s both}
+.mfx-baby-sun {position:absolute;top:5%;right:12%;z-index:1;font-size:74px;filter:drop-shadow(0 0 18px #ffd04e);animation:mfx-sun 5s linear infinite}.mfx-baby-sun b {position:absolute;top:31%;left:29%;font-size:30px;transform:rotate(-2deg)}
+.mfx-keyboard {top:52%;left:16%;animation:mfx-pet 1.1s linear infinite}.mfx-keycaps {top:20%;left:25%;white-space:nowrap;letter-spacing:14px}
+.mfx-phase-attack.mfx-harper .mfx-baby-sun,.mfx-phase-special.mfx-harper .mfx-baby-sun {filter:grayscale(1) brightness(.17) drop-shadow(0 0 12px #151515)}
+.mfx-phase-attack.mfx-harper .mfx-keycaps,.mfx-phase-special.mfx-harper .mfx-keycaps {animation:mfx-fly-money .7s both}
+.mfx-crown {top:10%;right:18%;animation:mfx-glimmer 3s infinite}.mfx-gold-aura {inset:17%;border:5px solid #eac056;border-radius:50%;box-shadow:0 0 18px #f7d273}.mfx-phase-special.mfx-eden .mfx-gold-aura {opacity:1;animation:mfx-golden .8s ease-out both}
+.mfx-flag {right:5%;top:35%;animation:mfx-flag 2.6s ease-in-out infinite}.mfx-calculator {top:43%;left:9%;}.mfx-roar {left:44%;top:15%;font-weight:900;font-size:30px;color:white;text-shadow:0 0 8px #7ccfff}
+.mfx-phase-attack.mfx-ian .mfx-calculator,.mfx-phase-special.mfx-ian .mfx-calculator {animation:mfx-launch .7s ease-in both}.mfx-phase-attack.mfx-ian .mfx-roar,.mfx-phase-special.mfx-ian .mfx-roar {animation:mfx-fly-money .65s both}
+.mfx-bone {left:17%;top:40%;opacity:0;transform:rotate(100deg) scale(.2)}.mfx-guard {left:43%;top:22%;font-size:92px;color:#9be4ff;opacity:0}
+.mfx-phase-attack.mfx-kade .mfx-bone {animation:mfx-bone-hit .7s both}.mfx-phase-special.mfx-kade .mfx-guard {animation:mfx-golden .8s both}
+.mfx-phase-attack.mfx-kade .mfx-star-eyes {display:block;animation:mfx-eyes .7s both}
+.mfx-cake {right:10%;top:47%;animation:mfx-pet 2.4s infinite}.mfx-hearts {left:20%;top:22%;color:#ffc2dc}
+.mfx-phase-attack.mfx-olivia .mfx-cake {animation:mfx-launch .6s both}.mfx-phase-special.mfx-olivia[data-opponent="kimi"] .mfx-hearts {animation:mfx-fly-money .9s both}
+.mfx-phase-special.mfx-olivia[data-opponent="sean"] .mfx-mole-img {animation:mfx-enlarge .8s both}
+.mfx-phase-special.mfx-olivia[data-opponent="sean"] .mfx-star-eyes {display:block;animation:mfx-eyes .9s both}
+.mfx-magic {top:18%;left:14%}.mfx-phase-attack .mfx-magic,.mfx-phase-special .mfx-magic {animation:mfx-fly-money .8s both}
+/* Battle container: overlays do not replace its live character image. */
+.mfx-battle-root {position:relative!important;overflow:visible!important;isolation:isolate;--mfx-accent:#ffa76f}
+.mfx-battle-root > img {position:relative;z-index:2}
+.mfx-battle-root .mfx-orbit {inset:-8% 6% 59%;z-index:9}
+.mfx-battle-root .mfx-toy {max-width:30%;max-height:80%}
+.mfx-battle-root .mfx-ghost {left:-22%;top:-34%;z-index:5;width:64%;height:100%}
+.mfx-battle-root .mfx-star-eyes {left:47%;top:28%;font-size:25px}
+.mfx-battle-root .mfx-baby-sun {top:-35%;right:5%;font-size:55px}.mfx-battle-root .mfx-baby-sun b {font-size:21px}
+.mfx-battle-root .mfx-pig {left:8%;top:44%}.mfx-battle-root .mfx-money {left:5%;top:30%}
+.mfx-battle-root .mfx-flag {right:-3%;top:25%}
+.mfx-battle-root.mfx-phase-attack > img {animation:mfx-charge .75s both}
+.mfx-battle-root.mfx-phase-special > img {animation:mfx-special-attack .82s both}
+.mfx-battle-root.mfx-phase-special.mfx-jacob .mfx-ghost {display:block;animation:mfx-fade-clown .9s both}
+.mfx-battle-root.mfx-phase-special.mfx-jacob .mfx-star-eyes {display:block;animation:mfx-eyes .85s both}
+.mfx-battle-root.mfx-phase-special.mfx-olivia[data-opponent="sean"] > img {animation:mfx-enlarge .82s both}
+/* Keyframes */
+@keyframes mfx-breathe {0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+@keyframes mfx-orbit {from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes mfx-wobble {from{rotate:-9deg}to{rotate:9deg}}
+@keyframes mfx-glimmer {0%,100%{opacity:.5;filter:brightness(.8)}50%{opacity:1;filter:brightness(1.5)}}
+@keyframes mfx-swish {0%{opacity:0;transform:translateX(-55%) scale(.1) rotate(-25deg)}40%{opacity:1}100%{opacity:0;transform:translateX(60%) scale(1.3) rotate(20deg)}}
+@keyframes mfx-charge {0%{transform:translateX(-50%) translateY(0)}38%{transform:translateX(-62%) translateY(4%)}70%{transform:translateX(-27%) translateY(-7%)}100%{transform:translateX(-50%) translateY(0)}}
+@keyframes mfx-special-attack {0%{filter:drop-shadow(0 3px 7px transparent)}40%{filter:drop-shadow(0 0 19px var(--mfx-accent))}65%{transform:translateX(-30%) scale(1.1)}100%{filter:none}}
+@keyframes mfx-fade-clown {0%,100%{opacity:0;transform:translateY(15px) scale(.9)}37%,60%{opacity:.82;transform:translateY(-2px) scale(1.02)}}
+@keyframes mfx-eyes {0%,100%{opacity:0;transform:scale(.3)}30%,80%{opacity:1;transform:scale(1.15)}}
+@keyframes mfx-pet {0%,100%{transform:translateY(0) rotate(3deg)}50%{transform:translateY(-7px) rotate(-5deg)}}
+@keyframes mfx-fly-money {0%{opacity:0;transform:scale(.4) translateY(20px)}35%,65%{opacity:1}100%{opacity:0;transform:scale(1.6) translateY(-75px) rotate(24deg)}}
+@keyframes mfx-camera-flash {0%,36%,64%,100%{opacity:0}40%,55%{opacity:.92}}
+@keyframes mfx-sun {from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes mfx-golden {0%{opacity:0;transform:scale(.5)}55%{opacity:1;transform:scale(1.15)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes mfx-flag {0%,100%{transform:rotate(-9deg)}50%{transform:rotate(12deg)}}
+@keyframes mfx-launch {0%{opacity:.8;transform:rotate(-60deg) translate(-15px,10px) scale(.6)}50%{opacity:1}100%{opacity:0;transform:rotate(50deg) translate(125px,-100px) scale(1.1)}}
+@keyframes mfx-bone-hit {0%{opacity:0;transform:rotate(-130deg) scale(.5)}45%{opacity:1;transform:rotate(20deg) scale(1.1)}100%{opacity:0;transform:translateX(85px) rotate(150deg) scale(1.6)}}
+@keyframes mfx-enlarge {0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.38)}100%{transform:translateX(-50%) scale(1.07)}}
+@media(max-width:800px){.mfx-modal{grid-template-columns:1fr;padding:13px;}.mfx-preview-card{max-width:420px;width:100%;justify-self:center}.mfx-modal-side{padding:0 3px}.mfx-card-tile{width: min(44vw,190px)!important}}
+@media(max-width:450px){#mfx-detail-screen{padding:6px}.mfx-modal{border-radius:12px;padding:10px;gap:10px}.mfx-card-statline span{font-size:10px}.mfx-flow-panel div{font-size:10px}.mfx-modal-side h3{font-size:17px}}
+@media(prefers-reduced-motion:reduce){.mfx-scene *,.mfx-card-tile *, .mfx-battle-root *, .mfx-card-tile {animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+/* Jacob uses a waist-up portrait: scale it to the player's half of the arena.
+   Avoid the generic sprite lunge translating the portrait underneath the control panel. */
+#arenaMoleArt.mfx-battle-root.mfx-jacob > img {
+  width: 74% !important;
+  max-width: 74% !important;
+  height: 84% !important;
+  max-height: 84% !important;
+  object-fit: contain;
+  object-position: center bottom;
+  position: absolute !important;
+  left: 18% !important;
+  bottom: 0 !important;
+  margin-left: 0;
+  margin-bottom: 0;
+}
+#arenaMoleArt.mfx-battle-root.mfx-jacob.mfx-phase-special > img {
+  animation: mfx-jacob-battle-special .82s ease-in-out both !important;
+}
+@keyframes mfx-jacob-battle-special {
+  0%, 100% { transform: translateX(0) scale(1); filter: drop-shadow(0 0 0 transparent); }
+  48% { transform: translateX(6%) translateY(-4%) scale(1.06); filter: drop-shadow(0 0 15px #ff645e); }
+}
+/* The normal Jacob attack retains his thumbs-up instead of charging. */
+#arenaMoleArt.mfx-battle-root.mfx-jacob.mfx-phase-idle > img {
+  animation: heroIdle 3s ease-in-out infinite;
+}
+/* --- 2026-11-23 cinematic 3D character-card dictionary --- */
+.mfx-card-tile .mfx-cover img.mfx-d3-thumb {inset:0!important;position:absolute!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center top!important;filter:none!important;transform:none!important;margin:0!important}
+.mfx-card-tile .mfx-cover {background:linear-gradient(160deg,#461a23,#140a16);min-height:183px}
+.mfx-card-tile .mfx-mini-caption{background:linear-gradient(transparent,#150810bb);bottom:0;left:0;right:0;padding:14px 4px 4px}
+.mfx-card-tile .mfx-mini-trait{color:#5e3d25}
+#mfx-detail-screen .mfx-three-d-modal{display:block;width:min(1200px,100%);max-height:calc(100dvh - 30px);overflow:auto;overscroll-behavior:contain;scrollbar-color:#ac775a #2d111b;background:linear-gradient(130deg,#290d1b 0%,#4b1d2a 48%,#170711 100%);padding:24px 18px 18px;border:3px solid #ae6f55;border-radius:18px;box-shadow:0 15px 80px #000b,inset 0 0 0 4px #70404d;color:#fff}
+#mfx-detail-screen .mfx-three-d-modal .mfx-close-modal{position:sticky;top:0;margin-left:auto;display:block;z-index:30;background:#f6d7a3;color:#34171e;border:2px solid #6d383b;border-radius:10px;padding:7px 13px;font-weight:900;cursor:pointer}
+.mfx-d3-layout{display:grid;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);gap:14px;margin-top:1px;align-items:stretch}
+.mfx-d3-left,.mfx-d3-right{min-width:0}
+.mfx-d3-left{display:flex;flex-direction:column}
+.mfx-d3-portrait{position:relative;overflow:hidden;min-height:330px;flex:1;border-radius:17px 17px 4px 4px;border:2px solid #a75f53;background:#3b1b26;box-shadow:inset 0 0 40px #0009}
+.mfx-d3-portrait>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;animation:mfx-d3-hero 6s ease-in-out infinite alternate}
+.mfx-d3-nameplate{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:28px 15px 11px;background:linear-gradient(transparent,#220a17e8 38%,#1a0814);text-shadow:0 3px 4px #000a}
+.mfx-d3-nameplate strong{font-size:clamp(24px,3vw,39px);font-family:system-ui,sans-serif;font-weight:950;color:#fff0cb;letter-spacing:-.04em}
+.mfx-d3-nameplate em{font-style:normal;font-size:clamp(10px,1.2vw,14px);padding:7px 10px;border:1px solid #daae61;border-radius:999px;color:#fce4b2;background:#80322c;font-weight:800}
+.mfx-d3-seal{font-size:28px;color:#ffda6a}
+.mfx-d3-parchment{padding:17px 15px 14px;min-height:199px;background:linear-gradient(145deg,#ffefd2,#edcda5);color:#432220;border:4px double #d7a56b;border-radius:4px 4px 18px 18px;box-shadow:0 4px 0 #5b2834,0 8px 20px #0009}
+.mfx-d3-statline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:17px}
+.mfx-d3-statline .mfx-live-stat,.mfx-mini-stats .mfx-live-stat{display:inline-flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;background:linear-gradient(#aa3935,#76282e);color:#fff;border:2px solid #e7af80;border-radius:100px;font-family:system-ui,sans-serif;font-size:clamp(10px,1.05vw,14px);font-weight:850;padding:5px 4px;box-shadow:0 2px 3px #0005}
+.mfx-d3-statline .mfx-live-stat:nth-child(2),.mfx-mini-stats .mfx-live-stat:nth-child(2){background:linear-gradient(#4b8eb9,#21527b)}
+.mfx-d3-statline .mfx-live-stat:nth-child(3),.mfx-mini-stats .mfx-live-stat:nth-child(3){background:linear-gradient(#d6a742,#76501c)}
+.mfx-d3-statline .mfx-live-stat:nth-child(4),.mfx-mini-stats .mfx-live-stat:nth-child(4){background:linear-gradient(#d56f9b,#923a6b)}
+.mfx-d3-statline .mfx-live-stat b{font-size:1.16em}
+.mfx-d3-ribbon{display:inline-flex;padding:7px 19px 7px 13px;min-width:104px;background:linear-gradient(#ef573c,#ae202a);border:2px solid #a42223;border-radius:5px;box-shadow:2px 3px 0 #551d25;color:#fffdf2;font-weight:900;font-size:17px}
+.mfx-d3-rule{margin:9px 1px 0;padding:10px 12px;white-space:pre-wrap;line-height:1.64;color:#3e2422;font-family:system-ui,sans-serif;font-size:clamp(13px,1.15vw,16px);font-weight:750;border:1px dashed #c9917b;border-radius:12px;background:#fff8e5b8}
+.mfx-d3-right{display:grid;grid-template-rows:1fr 1.52fr 1.15fr;gap:12px}
+.mfx-d3-scene{position:relative;overflow:hidden;border:2px solid #9e5755;border-radius:17px;background:linear-gradient(135deg,#482332,#1b091b);min-height:148px;box-shadow:inset 0 0 17px #0008;cursor:pointer;transition:border-color .25s,box-shadow .25s;}
+.mfx-d3-scene.active{border-color:#ffd07f;box-shadow:0 0 18px #efae5366,inset 0 0 20px #0008}
+.mfx-d3-scene>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:.96;transition:transform .5s,filter .3s}
+.mfx-d3-scene:hover>img,.mfx-d3-scene.active>img{transform:scale(1.06);filter:brightness(1.09)}
+.mfx-d3-scene-label{position:absolute;z-index:3;top:8px;left:10px;border:1px solid #c79369;border-radius:100px;background:#220e18d9;padding:5px 12px;color:#fff2d1;font-weight:850;text-shadow:0 1px 4px #000;font-size:clamp(12px,1.15vw,16px)}
+.mfx-d3-scene p{position:absolute;left:8px;right:8px;bottom:2px;z-index:2;margin:0;padding:14px 4px 4px;background:linear-gradient(transparent,#17090fdd);font-size:12px;font-weight:850;text-align:center;color:#fff0de;text-shadow:0 2px 3px #000}
+.mfx-d3-flow-scene>img{opacity:.92}
+.mfx-d3-flowline{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;justify-content:space-evenly;align-items:center;gap:3px;padding:10px 3px 8px;background:#1f0a16e8;color:#ffdfad;text-align:center;font-size:clamp(9px,.84vw,13px);font-weight:800;line-height:1.35}
+.mfx-d3-flowline span{flex:1}.mfx-d3-flowline span b{color:#ffd18a}.mfx-d3-flowline i{font-style:normal;font-size:13px}
+.mfx-live-preview{margin:15px 0 0;border:1px solid #9d675f;background:#240c1a88;border-radius:14px;padding:12px 15px}
+.mfx-live-preview summary{cursor:pointer;font-size:18px;color:#ffdf9d;font-weight:900;font-family:system-ui,sans-serif}
+.mfx-live-preview summary small{font-size:12px;color:#ddc3b4;font-weight:500}
+.mfx-live-body{display:grid;grid-template-columns:minmax(0,.65fr) minmax(0,1fr);gap:10px;padding-top:12px}
+.mfx-live-controls{display:flex;flex-direction:column;align-items:stretch;gap:9px;grid-column:1;grid-row:1/3}
+.mfx-live-controls label{font-size:13px;font-weight:800;color:#f7d4b1}.mfx-live-controls select{font:inherit;border-radius:8px;padding:7px;color:#2a1420;background:#fff3da}
+.mfx-live-controls .mfx-modes{display:flex;flex-wrap:wrap;gap:6px}
+.mfx-live-controls .mfx-modes button{font:inherit;border-radius:9px;padding:8px;cursor:pointer}
+.mfx-live-body #mfx-stage-mount{grid-column:2;grid-row:1/3;min-height:260px;max-height:340px}
+.mfx-live-body .mfx-caption{grid-column:2}.mfx-live-body .mfx-subtext{grid-column:1/-1;margin:2px 0;color:#e9c6b8}
+.mfx-card-tile .mfx-mini-stats .mfx-live-stat{padding:3px 2px;font-size:9px;border-width:1px}
+.mfx-card-tile .mfx-mini-stats .mfx-live-stat b{font-weight:950}
+@keyframes mfx-d3-hero{from{transform:scale(1.02) translateY(0)}to{transform:scale(1.08) translateY(-1%)}}
+@media(max-width:800px){.mfx-d3-layout{grid-template-columns:1fr}.mfx-d3-right{grid-template-rows:repeat(3,185px)}.mfx-d3-portrait{height:min(75vw,485px);min-height:290px;flex:none}.mfx-d3-parchment{min-height:unset}.mfx-live-body{grid-template-columns:1fr}.mfx-live-controls,.mfx-live-body #mfx-stage-mount,.mfx-live-body .mfx-caption{grid-column:1;grid-row:auto}}
+@media(max-width:460px){#mfx-detail-screen{padding:4px!important}.mfx-three-d-modal{padding:8px!important;max-height:calc(100dvh - 12px)!important}.mfx-d3-statline{gap:2px}.mfx-d3-statline .mfx-live-stat{font-size:10px;padding:5px 2px;border-width:1px}.mfx-d3-right{grid-template-rows:repeat(3,148px)}.mfx-d3-portrait{height:320px;min-height:320px}.mfx-d3-scene-label{font-size:12px}.mfx-live-preview summary{font-size:14px}}
+@media(prefers-reduced-motion:reduce){.mfx-d3-portrait img,.mfx-d3-scene img{animation:none!important;transition:none!important}}
+
+
+/* 2026-11-24: prevent ANY card's 3D effect panels from being zoomed/cropped.
+   Draw every crop at its native aspect ratio, put text in separate strips,
+   and let the modal scroll rather than sacrificing art at short viewports. */
+#mfx-detail-screen .mfx-d3-layout {align-items:start;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr)}
+#mfx-detail-screen .mfx-d3-left {min-width:0;align-self:start}
+#mfx-detail-screen .mfx-d3-portrait {
+  display:block;flex:none;aspect-ratio:656 / 592;width:100%;height:auto!important;
+  min-height:0!important;overflow:hidden;background:#280e21;
+}
+#mfx-detail-screen .mfx-d3-portrait>img {
+  width:100%;height:100%;object-fit:contain!important;object-position:center;
+  animation:none!important;transform:none;filter:none;
+}
+#mfx-detail-screen .mfx-d3-right {
+  display:flex;flex-direction:column;gap:10px;min-width:0;min-height:0;
+  grid-template-rows:none!important;
+}
+#mfx-detail-screen .mfx-d3-scene {
+  display:flex;flex-direction:column;flex:0 0 auto;
+  min-height:0!important;height:auto!important;overflow:hidden;
+}
+#mfx-detail-screen .mfx-d3-scene-label {
+  position:relative;inset:auto;display:block;align-self:stretch;
+  border:0;border-radius:0;margin:0;
+  font-size:clamp(12px,1.1vw,15px);line-height:1.3;
+  padding:6px 12px;background:#27111fec;
+}
+#mfx-detail-screen .mfx-d3-scene>img {
+  position:relative!important;inset:auto!important;display:block!important;flex:none;
+  width:100%!important;height:auto!important;max-width:100%!important;
+  min-height:0!important;aspect-ratio:auto;object-fit:contain!important;
+  object-position:center!important;opacity:1!important;
+  transform:none!important;transition:none!important;
+}
+#mfx-detail-screen .mfx-d3-scene:hover>img,
+#mfx-detail-screen .mfx-d3-scene.active>img {transform:none!important;filter:none!important;}
+#mfx-detail-screen .mfx-d3-scene p {
+  position:relative;inset:auto;display:block;flex:none;margin:0;
+  padding:5px 10px 8px;line-height:1.4;font-size:clamp(11px,.92vw,13px);
+  background:#270d1e;color:#fff0de;white-space:normal;overflow-wrap:anywhere;
+}
+#mfx-detail-screen .mfx-d3-flowline {
+  position:relative;inset:auto;flex:none;flex-wrap:wrap;
+  font-size:clamp(10px,.9vw,13px);line-height:1.35;
+  padding:8px 6px;white-space:normal;
+}
+#mfx-detail-screen .mfx-d3-flowline span {min-width:0;overflow-wrap:anywhere}
+#mfx-detail-screen .mfx-d3-flowline i {flex:none}
+#mfx-detail-screen .mfx-d3-nameplate {z-index:2}
+/* Hayley and Andrew now use the approved upper-body-only 3D detail images.
+   Keep the same relative character size as all other mole cards. */
+#grid .mfx-card-tile[data-id="hailey"] .mfx-d3-thumb,
+#grid .mfx-card-tile[data-id="andrew"] .mfx-d3-thumb {object-fit:cover!important;object-position:center center!important}
+/* Ensure the animation and visual effects fit at tablet and phone widths. */
+@media (max-width:800px) {
+ #mfx-detail-screen .mfx-d3-layout {grid-template-columns:minmax(0,1fr)!important}
+ #mfx-detail-screen .mfx-d3-right {gap:9px}
+ #mfx-detail-screen .mfx-d3-portrait {aspect-ratio:656 / 592!important;min-height:0!important;height:auto!important}
+}
+@media (max-width:460px) {
+ #mfx-detail-screen .mfx-d3-portrait {min-height:0!important;height:auto!important}
+ #mfx-detail-screen .mfx-d3-scene {min-height:0!important}
+ #mfx-detail-screen .mfx-d3-statline {grid-template-columns:repeat(2,minmax(0,1fr))}
+ #mfx-detail-screen .mfx-d3-flowline {gap:3px}
+ #mfx-detail-screen .mfx-d3-flowline i {font-size:11px}
+}
+/* Hayley: polished silver apple, glasses-throw and growing silver orchard. */
+.mfx-silver-apple,.mfx-glasses,.mfx-apple-tree,.mfx-apple-throw,
+.mfx-andrew-poses,.mfx-andrew-fanfare,.mfx-andrew-kick,.mfx-andrew-banner {
+  position:absolute;z-index:6;pointer-events:none;display:block;
+}
+.mfx-silver-apple {left:21%;bottom:13%;font-size:45px;filter:grayscale(1) brightness(1.25) drop-shadow(0 0 7px #e0e9ec);animation:mfx-pet 2.2s infinite}
+.mfx-glasses {left:52%;top:24%;font-size:40px;opacity:0}
+.mfx-apple-throw {left:26%;bottom:25%;font-size:40px;opacity:0;filter:grayscale(1) brightness(1.3) drop-shadow(0 0 10px #ddd)}
+.mfx-apple-tree {right:7%;bottom:5%;font-size:115px;opacity:0;transform-origin:50% 100%}
+.mfx-phase-attack.mfx-hailey .mfx-glasses {animation:mfx-apple-glasses .8s both}
+.mfx-phase-attack.mfx-hailey .mfx-apple-throw {animation:mfx-apple-flight .85s ease-out both}
+.mfx-phase-special.mfx-hailey .mfx-apple-tree {animation:mfx-grow-tree 1s both}
+.mfx-phase-special.mfx-hailey .mfx-silver-apple {animation:mfx-pet 1.3s infinite}
+/* Andrew: 3 steady military poses, then fanfare, blazing football, unfurled banner. */
+.mfx-andrew-poses {top:13%;left:9%;right:9%;text-align:center;color:#fff0b5;font-size:20px;font-weight:950;text-shadow:0 2px 8px #000;animation:mfx-cycle-poses 3.6s infinite}
+.mfx-andrew-poses span {display:inline-block;opacity:0;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap}
+.mfx-andrew-poses span:nth-child(1){animation:mfx-pose-visible 3.6s 0s infinite}
+.mfx-andrew-poses span:nth-child(2){animation:mfx-pose-visible 3.6s 1.2s infinite}
+.mfx-andrew-poses span:nth-child(3){animation:mfx-pose-visible 3.6s 2.4s infinite}
+.mfx-andrew-fanfare {left:8%;top:18%;font-size:40px;opacity:0}
+.mfx-andrew-kick {right:14%;top:37%;font-size:55px;opacity:0;text-shadow:0 0 15px #fa4f14}
+.mfx-andrew-banner {top:10%;left:8%;right:8%;padding:12px 8px;font-size:clamp(18px,3vw,31px);font-weight:950;text-align:center;white-space:nowrap;border:3px solid #dfae54;background:linear-gradient(90deg,#8a2435,#c54441,#8a2435);color:#ffe9b6;box-shadow:0 0 30px #eead3977;opacity:0;transform-origin:center;transform:scaleX(.02)}
+.mfx-phase-attack.mfx-andrew .mfx-andrew-fanfare {animation:mfx-fly-money .75s both}
+.mfx-phase-attack.mfx-andrew .mfx-andrew-kick {animation:mfx-fire-kick .8s both}
+.mfx-phase-special.mfx-andrew .mfx-andrew-banner {animation:mfx-unfurl .85s both}
+@keyframes mfx-apple-glasses {0%,10%{opacity:0;transform:translateY(-12px)}28%,85%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(2px)}}
+@keyframes mfx-apple-flight {0%,18%{opacity:0;transform:translate(-30px,40px) scale(.4)}40%,72%{opacity:1}100%{opacity:0;transform:translate(180px,-80px) scale(1.15) rotate(70deg)}}
+@keyframes mfx-grow-tree {0%{opacity:0;transform:scale(.1) translateY(100%)}40%{opacity:.9}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes mfx-pose-visible {0%,31%{opacity:1}33%,100%{opacity:0}}
+@keyframes mfx-cycle-poses {to{transform:translateY(0)}}
+@keyframes mfx-fire-kick {0%{opacity:0;transform:translate(-90px,20px) scale(.4)}30%,60%{opacity:1}100%{opacity:0;transform:translate(130px,-40px) scale(1.5) rotate(390deg)}}
+@keyframes mfx-unfurl {0%{opacity:0;transform:scaleX(.01)}35%{opacity:1}100%{opacity:1;transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){
+ .mfx-andrew-poses span:nth-child(2),.mfx-andrew-poses span:nth-child(3){display:none}
+ .mfx-andrew-poses span:nth-child(1){opacity:1;position:relative}
+}
+
+/* Aiden: rotating neon flowers, iridescent bubbles, and the 3D electric jellyfish. */
+.mfx-aiden-flowers,.mfx-aiden-bubbles,.mfx-aiden-shock,.mfx-aiden-jellyfish{position:absolute;pointer-events:none;z-index:6}
+.mfx-aiden-flowers{top:11%;left:8%;right:7%;text-align:center;font-size:clamp(26px,4vw,46px);letter-spacing:19px;color:#ff9dd5;text-shadow:0 0 12px #e35af9,0 0 22px #7656ff;animation:mfx-aiden-flower-float 4s infinite ease-in-out}
+.mfx-aiden-bubbles{opacity:0;top:24%;left:51%;white-space:nowrap;font-size:36px;letter-spacing:16px;color:#aff4ff;text-shadow:0 0 12px #9caaff}
+.mfx-aiden-jellyfish{opacity:0;width:66%;height:62%;right:-1%;top:9%;object-fit:contain;mask-image:radial-gradient(ellipse,#000 36%,transparent 75%);filter:drop-shadow(0 0 24px #b694ff)}
+.mfx-aiden-shock{opacity:0;top:30%;right:11%;font-size:40px;color:#e5f9ff;text-shadow:0 0 14px #66aaff,0 0 24px #edb3ff}
+.mfx-phase-attack.mfx-aiden .mfx-aiden-bubbles{animation:mfx-aiden-bubble-blow .85s forwards}
+.mfx-phase-special.mfx-aiden .mfx-aiden-bubbles{animation:mfx-aiden-bubble-blow .85s forwards}
+.mfx-phase-special.mfx-aiden .mfx-aiden-jellyfish{animation:mfx-aiden-summon .9s forwards}
+.mfx-phase-special.mfx-aiden .mfx-aiden-shock{animation:mfx-aiden-electric .95s forwards}
+.mfx-battle-root .mfx-aiden-flowers{top:-12%;right:-4%;left:-4%;font-size:29px;letter-spacing:3px}
+.mfx-battle-root .mfx-aiden-jellyfish{right:-45%;top:-36%;width:114%;height:112%}
+@keyframes mfx-aiden-flower-float {0%,100%{transform:translateY(0) rotate(-9deg)}50%{transform:translateY(-12px) rotate(9deg)}}
+@keyframes mfx-aiden-bubble-blow {0%{opacity:0;transform:translate(-45px,55px) scale(.25)}35%,72%{opacity:1}100%{opacity:0;transform:translate(110px,-90px) scale(1.65)}}
+@keyframes mfx-aiden-summon {0%{opacity:0;transform:translateY(75px) scale(.2)}45%{opacity:.85;transform:translateY(-10px) scale(1.08)}100%{opacity:.94;transform:translateY(0) scale(1)}}
+@keyframes mfx-aiden-electric {0%,100%{opacity:0}25%,45%,65%,85%{opacity:1}30%,55%,75%{opacity:.12}}
+@media(prefers-reduced-motion:reduce){.mfx-aiden-flowers{animation:none}}
+
+/* Sally: dignified idle, hammer multi-hit, giant diamond extra attack. */
+.mfx-sally-ledger,.mfx-sally-hammer,.mfx-sally-diamond { position:absolute;z-index:8;pointer-events:none;filter:drop-shadow(0 3px 8px #0008); }
+.mfx-sally-ledger {left:8%;bottom:12%;font-size:clamp(20px,3vw,42px);opacity:.85;animation:mfx-sally-ledger-idle 2.2s infinite ease-in-out;}
+.mfx-sally-hammer {right:6%;top:10%;font-size:clamp(55px,9vw,110px);opacity:0;transform:rotate(-95deg) scale(.4);transform-origin:70% 80%;}
+.mfx-sally-diamond {left:34%;top:-40%;font-size:clamp(55px,9vw,100px);opacity:0;text-shadow:0 0 22px #b3e7ff;}
+.mfx-phase-attack.mfx-sally .mfx-sally-ledger,.mfx-phase-special.mfx-sally .mfx-sally-ledger{opacity:0;animation:none}
+.mfx-phase-attack.mfx-sally .mfx-sally-hammer{animation:mfx-sally-swing .48s both}
+.mfx-phase-special.mfx-sally .mfx-sally-diamond{animation:mfx-sally-diamond-fall .9s both}
+@keyframes mfx-sally-ledger-idle {0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(0) translateY(-4px)}}
+@keyframes mfx-sally-swing {0%{opacity:0;transform:rotate(-105deg) scale(.5)}26%{opacity:1;transform:rotate(-72deg) scale(1)}72%{opacity:1;transform:rotate(23deg) scale(1.1)}100%{opacity:0;transform:rotate(63deg) scale(.85)}}
+@keyframes mfx-sally-diamond-fall {0%{opacity:0;transform:translateY(-90%) scale(1.25) rotate(-20deg)}28%{opacity:1}67%{opacity:1;transform:translateY(130%) scale(1.4) rotate(13deg)}100%{opacity:0;transform:translateY(170%) scale(1.1) rotate(20deg)}}
+@media(prefers-reduced-motion:reduce){.mfx-phase-special.mfx-sally .mfx-sally-diamond{opacity:1;transform:translateY(80%)}.mfx-phase-attack.mfx-sally .mfx-sally-hammer{opacity:1;transform:none}}
+
+/* Sally portrait + scene layout: true proportions, no vertically squeezed artwork.
+   Frame image is ~800x270; use a full 193px scene rather than 104px nested strip.
+   Captions stay on the artwork, the 900x185 flow gets its own window. */
+#mfx-detail-screen .mfx-sally-modal .mfx-d3-layout {
+  display:grid;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);gap:14px;align-items:start;
+}
+#mfx-detail-screen .mfx-sally-modal .mfx-d3-portrait {
+  aspect-ratio:656 / 592!important;width:100%;height:auto!important;min-height:0!important;background:#260b18;
+}
+#mfx-detail-screen .mfx-sally-modal .mfx-d3-portrait>img {
+  width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;
+}
+#mfx-detail-screen .mfx-sally-modal .mfx-d3-right {
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:193px 193px 193px 124px!important;gap:10px!important;
+}
+#mfx-detail-screen .mfx-sally-modal .mfx-d3-scene {
+  display:block!important;position:relative!important;height:100%!important;min-height:0!important;overflow:hidden;
+  border:2px solid #bd775e;background:#25101e;
+}
+#mfx-detail-screen .mfx-sally-modal .mfx-d3-scene>img {
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;max-height:none!important;max-width:none!important;
+  object-fit:contain!important;object-position:center center!important;
+  aspect-ratio:auto!important;transform:none!important;filter:none!important;
+}
+#mfx-detail-screen .mfx-sally-modal .mfx-d3-scene-label {
+  position:absolute!important;z-index:4!important;left:10px!important;top:9px!important;right:auto!important;
+  width:auto!important;display:inline-flex!important;align-self:auto!important;
+  padding:6px 13px!important;margin:0!important;
+  background:#260c1be8!important;border:1px solid #d7ad70!important;
+  border-radius:99px!important;color:#ffedce!important;font-size:14px!important;
+  box-shadow:0 3px 10px #13040b78;
+}
+#mfx-detail-screen .mfx-sally-modal .mfx-d3-scene p {
+  position:absolute!important;inset:auto 0 0!important;display:block!important;
+  height:auto!important;margin:0!important;padding:19px 9px 8px!important;
+  background:linear-gradient(transparent,#1d0919ea 50%,#170710f2 100%)!important;
+  color:#fff1dc!important;line-height:1.35!important;
+  font-size:clamp(11px,.89vw,13px)!important;text-align:center!important;
+  text-shadow:0 2px 4px #000e;
+}
+#mfx-detail-screen .mfx-sally-modal .mfx-d3-flowline {
+  position:absolute!important;inset:auto 0 0!important;display:flex!important;
+  padding:7px 7px!important;min-height:29px!important;flex-wrap:nowrap!important;
+  background:#170714e8!important;white-space:normal!important;
+  font-size:clamp(10px,.78vw,12px)!important;
+}
+#mfx-detail-screen .mfx-sally-modal .mfx-d3-flow-scene>img {height:100%!important;object-fit:contain!important}
+@media(max-width:800px){
+ #mfx-detail-screen .mfx-sally-modal .mfx-d3-layout {grid-template-columns:1fr!important}
+ #mfx-detail-screen .mfx-sally-modal .mfx-d3-right {
+  grid-template-rows:repeat(3, 177px) 120px!important;
+ }
+ #mfx-detail-screen .mfx-sally-modal .mfx-d3-scene-label {font-size:12px!important}
+}
+@media(max-width:460px){
+ #mfx-detail-screen .mfx-sally-modal .mfx-d3-right {
+  grid-template-rows:142px 142px 142px 106px!important;gap:8px!important;
+ }
+ #mfx-detail-screen .mfx-sally-modal .mfx-d3-scene-label {font-size:11px!important;padding:4px 8px!important}
+ #mfx-detail-screen .mfx-sally-modal .mfx-d3-flowline {font-size:9px!important;padding:4px!important}
+ #mfx-detail-screen .mfx-sally-modal .mfx-d3-scene p {font-size:10px!important;padding:12px 5px 5px!important}
+}
+
+/* Z and L visuals are made from the same 3D plush cutouts as the card dictionary. */
+.mfx-z .mfx-z-quills,.mfx-l .mfx-l-snake,.mfx-l .mfx-l-curse,.mfx-z .mfx-z-heather{position:absolute;pointer-events:none;z-index:6;opacity:0;font-weight:900;color:#ffe6aa;text-shadow:0 0 18px #ffc768}
+.mfx-z .mfx-z-quills{top:4%;left:30%;font-size:3em}.mfx-z .mfx-z-heather{right:2%;bottom:24%;font-size:1.4em}.mfx-l .mfx-l-snake{right:4%;top:11%;font-size:5em}.mfx-l .mfx-l-curse{left:5%;top:15%;font-size:3em}
+.mfx-z.mfx-phase-attack .mfx-z-quills,.mfx-z.mfx-phase-special .mfx-z-heather,.mfx-l.mfx-phase-attack .mfx-l-snake,.mfx-l.mfx-phase-special .mfx-l-curse{opacity:1;animation:mfxNewBossPulse 1s ease-in-out infinite alternate}
+@keyframes mfxNewBossPulse{from{transform:translateY(-6px) scale(.85);filter:drop-shadow(0 0 5px #ffc447)}to{transform:translateY(4px) scale(1.14);filter:drop-shadow(0 0 15px #b74bff)}}
+
+/* Henry's double-dice evolution: ordinary black hoodie -> white tank and fur coat. */
+.mfx-henry .mfx-henry-halo{position:absolute;z-index:7;left:13%;top:8%;font-size:3rem;color:#ffeaa0;text-shadow:0 0 12px gold;opacity:0;pointer-events:none}
+.mfx-henry .mfx-henry-evolved{position:absolute;z-index:6;left:25%;bottom:9%;height:80%;width:60%;object-fit:contain;opacity:0;pointer-events:none;filter:drop-shadow(0 0 16px #f7d67a)}
+.mfx-henry.mfx-phase-special .mfx-henry-halo{opacity:1;animation:mfxNewBossPulse .7s ease-in-out infinite alternate}
+.mfx-henry.mfx-phase-special .mfx-henry-evolved{opacity:1;animation:mfxHenryEvolution .7s ease-out both}
+@keyframes mfxHenryEvolution{from{opacity:0;transform:scale(.8) rotate(4deg)}to{opacity:1;transform:scale(1)}}
+
+/* 2026-11-25 character direction: keep the original plush artwork intact. */
+.mfx-phase-attack.mfx-kade .mfx-bone { transform-origin: 20% 90%; animation: mfx-golyuk-swing .78s cubic-bezier(.16,.8,.2,1) both !important; font-size: clamp(3rem,7vw,7rem); }
+@keyframes mfx-golyuk-swing { 0% {opacity:0;transform:translate(-22%,18%) rotate(-100deg) scale(.75)} 25% {opacity:1;transform:translate(-7%,-9%) rotate(-65deg) scale(1.05)} 65% {opacity:1;transform:translate(35%,-15%) rotate(68deg) scale(1.25)} 100% {opacity:0;transform:translate(55%,18%) rotate(112deg) scale(.8)} }
+.mfx-phase-attack.mfx-olivia .mfx-cake { animation: mfx-celebrate .85s ease-out both !important; }
+@keyframes mfx-celebrate { 0%{opacity:0;transform:translateY(18px) scale(.4) rotate(-12deg)} 35%{opacity:1;transform:translateY(-20px) scale(1.25) rotate(8deg)} 75%{opacity:1;transform:translateY(-38px) scale(1.1)} 100%{opacity:0;transform:translateY(-65px) scale(.9)} }

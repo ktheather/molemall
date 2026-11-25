@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>두더지몰 — 카드 사전</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css">
+<style>
+  :root { --pink: #ff5c8a; --ink: #101010; --paper: #f8f8f0; }
+  * { box-sizing: border-box; }
+  body { font-family: Galmuri11, Galmuri9, sans-serif; background: #2a2a2a; color: var(--ink); margin: 0; padding: 16px; }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; color: #fff; }
+  header h1 { margin: 0; font-size: 20px; font-family: Galmuri14; }
+  header a { color: #ffdf5c; text-decoration: none; font-size: 13px; }
+  header .count { font-size: 13px; color: #aaa; margin-left: auto; }
+  .dev-toggle { font-size: 11px; color: #888; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+  .sheet dt.dev { color: #c0392b; } .sheet dd.dev { color: #c0392b; background: #fff3f3; padding: 4px 6px; border: 1px dashed #c0392b; }
+  .grid { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+  /* 카드 실물 57×87 세로형 — 3배 스케일 */
+  .card { background: #fff; border: 4px solid var(--ink); border-radius: 8px; width: 171px; aspect-ratio: 57 / 87; padding: 8px 9px; display: flex; flex-direction: column; gap: 4px; text-align: center; box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--ink); cursor: pointer; transition: transform .1s; }
+  .card:hover { transform: translateY(-4px); }
+  .card h3 { margin: 0; font-size: 15px; border-bottom: 3px solid var(--ink); padding-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card img { width: 96px; margin: 4px auto; transform-origin: center; position: relative; z-index: 1; }
+  .card { overflow: visible; }
+  /* 임원 특성 카드: 검정 대신 금띠 */
+  .card.gold { border-color: #c9a227; box-shadow: 0 0 0 3px #fff, 0 0 0 6px #c9a227; background: linear-gradient(#fffdf5, #fff8e3); }
+  .card.gold h3 { border-bottom-color: #c9a227; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; font-size: 12px; gap: 2px 6px; text-align: left; }
+  .stats b { color: var(--pink); }
+  .note { margin-top: auto; font-size: 11px; color: #555; line-height: 1.3; border-top: 1px dashed #bbb; padding-top: 4px; }
+  .empty { color: #aaa; }
+  /* 상세 */
+  #detail { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.75); display: flex; align-items: center; justify-content: center; padding: 20px; }
+  #detail[hidden] { display: none; }
+  .sheet { background: var(--paper); border: 4px solid var(--ink); border-radius: 8px; padding: 18px; width: min(560px, 100%); display: flex; gap: 18px; box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--ink); }
+  .sheet .card { cursor: default; flex: none; }
+  .sheet .card:hover { transform: none; }
+  .sheet .info { flex: 1; min-width: 0; font-size: 13px; line-height: 1.6; }
+  .sheet h2 { margin: 0 0 6px; font-family: Galmuri14; }
+  .sheet dt { color: #777; font-size: 11px; margin-top: 8px; }
+  .sheet dd { margin: 0; }
+  .bar { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .bar span { width: 44px; }
+  .bar i { display: block; height: 10px; background: var(--pink); border: 2px solid var(--ink); }
+  .close { margin-top: 12px; font-family: inherit; font-size: 13px; padding: 6px 12px; border: 3px solid var(--ink); background: #ffdf5c; border-radius: 4px; cursor: pointer; box-shadow: 3px 3px 0 var(--ink); }
+  @media (max-width: 600px) { .sheet { flex-direction: column; align-items: center; } }
+</style>
+
+<link rel="stylesheet" href="../src/character-fx.css?v=zl-henry-final-20261124"> <!-- MOLEMALL_CHARACTER_FX -->
+</head>
+<body>
+<header>
+  <a href="../">← 메인</a>
+  <h1>📖 카드 사전</h1>
+  <a href="../bosses/">보스 사전 →</a>
+  <span class="count" id="count"></span>
+  <label class="dev-toggle"><input type="checkbox" id="devToggle"> 개발용: 숨김 특이사항</label>
+</header>
+<div class="grid" id="grid"></div>
+<div id="detail" hidden></div>
+<script type="module" src="../src/cards.js"></script>
+<script type="module" src="../src/character-dictionary.js?v=zl-henry-final-20261124"></script> <!-- MOLEMALL_CHARACTER_FX -->
+</body>
+</html>

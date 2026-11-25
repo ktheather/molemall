@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2a2a2a">
+  <title>두더지몰 — 보스 사전</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css">
+  <link rel="stylesheet" href="../src/bosses.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">보스 목록으로 건너뛰기</a>
+  <header class="page-header">
+    <a href="../">← 메인</a>
+    <h1>📖 보스 사전</h1>
+    <span class="count" id="count" aria-live="polite"></span>
+    <nav aria-label="관련 메뉴">
+      <a href="../cards/">두더지 카드 사전</a>
+      <a href="../minigame/">미니게임</a>
+    </nav>
+  </header>
+  <main id="main">
+    <p class="intro">보스 카드를 선택하면 능력과 특성을 자세히 볼 수 있습니다.</p>
+    <p class="status" id="status" role="status">보스 정보를 불러오는 중…</p>
+    <button class="action retry" id="retryBtn" type="button" hidden>다시 불러오기</button>
+    <div class="grid" id="grid" aria-label="전체 보스 카드" aria-busy="true"></div>
+    <p class="guide" id="statGuide" hidden>카드에는 기본 능력치가 표시됩니다. 전투 시작 시 공격력과 지배력에 각각 주사위 눈 ÷ 2가 적용됩니다.</p>
+    <noscript><p class="status">보스 사전을 보려면 브라우저의 자바스크립트를 켜주세요.</p></noscript>
+  </main>
+  <dialog id="detail" aria-labelledby="detailTitle">
+    <div class="sheet">
+      <div class="detail-art" id="detailArt"></div>
+      <div class="info">
+        <p class="detail-level" id="detailLevel"></p>
+        <h2 id="detailTitle"></h2>
+        <p class="detail-hp" id="detailHp"></p>
+        <dl class="detail-stats" id="detailStats"></dl>
+        <dl class="description">
+          <dt id="traitTitle">특성</dt>
+          <dd id="traitDescription"></dd>
+          <dt>전투 능력치</dt>
+          <dd>등장할 때 공격력과 지배력에 각각 주사위 눈 ÷ 2가 적용됩니다. 방어력과 공감력은 카드의 기본값을 사용합니다.</dd>
+        </dl>
+        <div class="detail-actions">
+          <a class="action play" href="../minigame/">미니게임으로</a>
+          <button class="action close" id="closeBtn" type="button" autofocus>닫기</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+  <script type="module" src="../src/bosses.js?v=zl-henry-final-20261124"></script>
+</body>
+</html>

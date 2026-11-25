@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>두더지몰 — 카드 배틀</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css">
+<style>
+  :root { --pink: #ff5c8a; --ink: #101010; --paper: #f8f8f0; --hp: #40c040; --hp-mid: #f0c020; --hp-low: #e04040; }
+  * { box-sizing: border-box; }
+  body { font-family: Galmuri11, Galmuri9, monospace; background: #2a2a2a; color: var(--ink); margin: 0; padding: 12px; }
+  h1 { margin: 0 0 8px; font-size: 18px; color: #fff; font-family: Galmuri14; }
+  [hidden] { display: none !important; }
+  button { font-family: inherit; font-size: 14px; padding: 8px 14px; border: 3px solid var(--ink); background: #ffdf5c; border-radius: 4px; cursor: pointer; box-shadow: 3px 3px 0 var(--ink); }
+  button:disabled { opacity: .4; cursor: default; box-shadow: none; }
+  button:not(:disabled):active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+  input { font-family: inherit; font-size: 16px; padding: 8px; border: 3px solid var(--ink); border-radius: 4px; }
+  #status { margin: 8px 0; font-weight: bold; min-height: 1.4em; color: #fff; }
+
+  /* 로비 */
+  #lobby, #wait { max-width: 420px; background: var(--paper); border: 4px solid var(--ink); border-radius: 6px; padding: 20px; box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--ink); }
+  #lobby .row, #wait .row { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; align-items: center; }
+  #code { font-size: 40px; letter-spacing: 8px; font-weight: bold; color: var(--pink); font-family: Galmuri14; }
+
+  /* ───── 배틀 스크린 (GB 10:9) ───── */
+  .layout { display: grid; grid-template-columns: minmax(0, 560px) 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  .screen {
+    position: relative; width: 100%; aspect-ratio: 10 / 9; background: var(--paper);
+    border: 4px solid var(--ink); border-radius: 6px; overflow: hidden; user-select: none;
+    box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--ink);
+    font-size: clamp(11px, 2.6vw, 16px);
+  }
+  .sprite { position: absolute; image-rendering: pixelated; transition: transform .15s; }
+  .sprite img { width: 100%; display: block; image-rendering: pixelated; filter: drop-shadow(2px 2px 0 rgba(0,0,0,.15)); }
+  .sprite.empty { opacity: .15; }
+  #oppSprite { width: 28%; right: 6%; top: 6%; }
+  #mySprite  { width: 34%; left: 4%; bottom: 32%; transform: scaleX(-1); }
+
+  .hpbox { position: absolute; padding: .4em .6em; line-height: 1.3; }
+  .hpbox .name { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hpbox .owner { font-size: .75em; color: #555; }
+  .hpbox .hp { display: flex; align-items: center; gap: .4em; margin-top: .2em; }
+  .hpbox .hp b { font-size: .7em; background: var(--ink); color: #fff; padding: 0 .3em; }
+  .bar { flex: 1; height: .5em; border: 2px solid var(--ink); background: #fff; }
+  .bar div { height: 100%; background: var(--hp); transition: width .8s steps(24); }
+  .bar.mid div { background: var(--hp-mid); } .bar.low div { background: var(--hp-low); }
+  .hpbox .num { text-align: right; font-family: Galmuri14, inherit; }
+  .hpbox .coins { font-size: .75em; color: #555; }
+  #oppBox { left: 4%; top: 5%; width: 46%; border-bottom: 3px solid var(--ink); border-left: 3px solid var(--ink); border-radius: 0 0 0 8px; }
+  #myBox  { right: 4%; bottom: 31%; width: 46%; border-bottom: 3px solid var(--ink); border-right: 3px solid var(--ink); border-radius: 0 0 8px 0; }
+
+  .ground { position: absolute; height: 5%; border-radius: 50%; background: #ddd8c8; }
+  #oppGround { width: 36%; right: 2%; top: 30%; }
+  #myGround  { width: 48%; left: -2%; bottom: 29%; }
+
+  .panel { position: absolute; left: 0; right: 0; bottom: 0; height: 28%; display: flex; border-top: 4px solid var(--ink); background: #fff; }
+  .msg { flex: 1; padding: .6em .8em; line-height: 1.5; overflow: hidden; }
+  .msg .calc { font-size: .7em; color: #777; }
+  .menu { width: 45%; border-left: 4px solid var(--ink); padding: .5em .6em; display: grid; grid-template-columns: 1fr 1fr; align-content: start; gap: .1em .4em; }
+  .menu button { all: unset; cursor: pointer; padding: .15em 0 .15em 1.1em; position: relative; white-space: nowrap; font-family: inherit; }
+  .menu button::before { content: '▶'; position: absolute; left: 0; opacity: 0; }
+  .menu button:hover::before, .menu button:focus::before { opacity: 1; }
+  .menu button:disabled { color: #aaa; cursor: default; }
+  .menu button:disabled::before { opacity: 0; }
+  .menu .wide { grid-column: 1 / -1; }
+
+  /* 공격 연출 */
+  @keyframes lungeMe  { 0%{transform:scaleX(-1) translate(0,0)} 40%{transform:scaleX(-1) translate(-14%,-10%)} 100%{transform:scaleX(-1) translate(0,0)} }
+  @keyframes lungeOpp { 0%{transform:translate(0,0)} 40%{transform:translate(-30%,30%)} 100%{transform:translate(0,0)} }
+  @keyframes hit { 0%,100%{opacity:1;transform:translate(0)} 20%{opacity:.2;transform:translate(3%,0)} 40%{opacity:1} 60%{opacity:.2;transform:translate(-3%,0)} 80%{opacity:1} }
+  @keyframes hitMe { 0%,100%{opacity:1;transform:scaleX(-1) translate(0)} 20%{opacity:.2;transform:scaleX(-1) translate(3%,0)} 40%{opacity:1} 60%{opacity:.2;transform:scaleX(-1) translate(-3%,0)} 80%{opacity:1} }
+  #mySprite.lunge  { animation: lungeMe .5s ease-out; }
+  #oppSprite.lunge { animation: lungeOpp .5s ease-out; }
+  #oppSprite.hit { animation: hit .6s .3s; }
+  #mySprite.hit  { animation: hitMe .6s .3s; }
+  .dice { position: absolute; left: 50%; top: 38%; transform: translateX(-50%); display: flex; gap: .4em; }
+  .die { width: 2em; height: 2em; border: 3px solid var(--ink); background: #fff; font-family: Galmuri14; font-size: 1em; display: flex; align-items: center; justify-content: center; }
+  .dice.roll .die { animation: shake .4s; }
+  @keyframes shake { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-15deg)} 75%{transform:rotate(15deg)} }
+
+  /* ───── 손패 / 로그 ───── */
+  .side { background: var(--paper); border: 4px solid var(--ink); border-radius: 6px; padding: 10px; }
+  .side h2 { margin: 0 0 6px; font-size: 14px; }
+  #handInfo { font-size: 12px; color: #555; margin-bottom: 6px; }
+  #hand { display: flex; gap: 10px; flex-wrap: wrap; min-height: 150px; }
+  .slot { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+  /* 카드 실물 규격 57×87 (세로형) — 2배 스케일. 구성: 이름 / 이미지 / 능력치 / 특이사항 */
+  .card { background: #fff; border: 3px solid var(--ink); border-radius: 6px; width: 114px; aspect-ratio: 57 / 87; padding: 5px 6px; display: flex; flex-direction: column; gap: 3px; text-align: center; }
+  .card h3 { margin: 0; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-bottom: 2px solid var(--ink); padding-bottom: 2px; }
+  .card img { width: 56px; margin: 2px auto; image-rendering: pixelated; transform-origin: center; position: relative; z-index: 1; }
+  .card .stats { text-align: left; }
+  .card .note { margin-top: auto; font-size: 9px; color: #555; line-height: 1.2; max-height: 2.4em; overflow: hidden; border-top: 1px dashed #bbb; padding-top: 2px; }
+  .card.empty { justify-content: center; align-items: center; color: #999; }
+  .card.gold { border-color: #c9a227; background: linear-gradient(#fffdf5, #fff8e3); }
+  .card.gold h3 { border-bottom-color: #c9a227; }
+  .card.playable { cursor: pointer; }
+  .card.playable:hover { transform: translateY(-4px); border-color: var(--pink); }
+  .card.new { box-shadow: 0 0 0 3px #ffdf5c; }
+  .card.selected { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink); }
+  .card.active { box-shadow: 0 0 0 3px var(--pink); }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; font-size: 10px; gap: 1px 4px; }
+  .stats b { color: var(--pink); }
+  button.mini { font-size: 11px; padding: 3px 6px; box-shadow: 2px 2px 0 var(--ink); background: #fff; }
+  button.mini.discard { background: var(--pink); color: #fff; }
+  #log { max-height: 200px; overflow: auto; font-size: 12px; line-height: 1.5; margin-top: 10px; }
+  .entry { padding: 3px 0; border-bottom: 1px dashed #bbb; }
+  .calc { font-family: GalmuriMono9, monospace; color: #777; font-size: 11px; }
+  .fx { color: var(--pink); font-size: 11px; }
+  .tag { background: var(--pink); color: #fff; padding: 0 5px; font-size: 11px; }
+  #picker { position: fixed; inset: 0; background: rgba(0,0,0,.7); padding: 30px; overflow: auto; z-index: 10; }
+  #picker h3 { color: #fff; }
+  #picker .grid { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<h1>두더지몰 — 카드 배틀</h1>
+<div id="status">불러오는 중…</div>
+
+<div id="lobby" hidden>
+  <div class="row"><label>이름 <input id="name" placeholder="닉네임" maxlength="12"></label></div>
+  <div class="row"><button id="hostBtn">방 만들기</button></div>
+  <div class="row"><input id="joinCode" placeholder="방 코드 4글자" maxlength="4" style="width:140px;text-transform:uppercase"><button id="joinBtn">참가하기</button></div>
+</div>
+
+<div id="wait" hidden>
+  <p>방 코드를 상대에게 알려주세요</p>
+  <div id="code">----</div>
+</div>
+
+<div id="game" hidden>
+  <div class="layout">
+    <div>
+      <div class="screen">
+        <div class="ground" id="oppGround"></div>
+        <div class="ground" id="myGround"></div>
+        <div class="hpbox" id="oppBox">
+          <div class="name" id="oppCardName"></div>
+          <div class="owner"><span id="oppName"></span> <span class="coins" id="oppCoins"></span> <span id="oppHandCount"></span></div>
+          <div class="hp"><b>HP</b><div class="bar" id="oppBar"><div></div></div></div>
+        </div>
+        <div class="sprite" id="oppSprite"><img alt=""></div>
+        <div class="dice" id="dice"><div class="die" id="d1">?</div><div class="die" id="d2">?</div></div>
+        <div class="sprite" id="mySprite"><img alt=""></div>
+        <div class="hpbox" id="myBox">
+          <div class="name" id="myCardName"></div>
+          <div class="owner"><span id="myName"></span> <span class="coins" id="myCoins"></span></div>
+          <div class="hp"><b>HP</b><div class="bar" id="myBar"><div></div></div></div>
+          <div class="num"><span id="myHpText"></span></div>
+        </div>
+        <div class="panel">
+          <div class="msg" id="msg"></div>
+          <div class="menu" id="menu"></div>
+        </div>
+      </div>
+    </div>
+    <div class="side">
+      <h2>내 손패</h2>
+      <div id="handInfo"></div>
+      <div id="hand"></div>
+      <div id="log"></div>
+    </div>
+  </div>
+</div>
+
+<div id="picker" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<script type="module" src="../src/battle.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7e6e6">
+  <title>PLUSH BATTLE · 두더지몰</title>
+  <link rel="stylesheet" href="../src/minigame.css?v=zl-henry-final-20261124">
+
+<link rel="stylesheet" href="../src/character-fx.css?v=zl-henry-final-20261124"> <!-- MOLEMALL_CHARACTER_FX -->
+</head>
+<body>
+<main class="game-shell">
+  <header class="game-toolbar">
+    <div class="game-links"><a class="home-link" href="../" aria-label="두더지몰 홈으로">← 두더지몰</a><a class="home-link" href="../bosses/">보스 사전</a></div>
+    <nav id="bossPath" class="boss-path" aria-label="보스 선택"></nav>
+    <button id="soundBtn" class="sound-btn" type="button" aria-pressed="false" aria-label="효과음 끄기">♪ <span>소리 켜짐</span></button>
+  </header>
+
+  <section class="arena" data-level="1" data-boss="elephant" aria-label="플러시 보스 전투">
+    <aside class="control-panel" aria-label="카드와 조작">
+      <div class="card-stage">
+        <div class="section-label"><span>이번 턴의 두더지</span><span id="cardState">준비</span></div>
+        <div id="mole" class="card"><p>카드를 불러오는 중…</p></div>
+        <div class="stage" id="stage" aria-live="polite"><div id="stageVisual"></div></div>
+      </div>
+      <div class="actions">
+        <button id="drawBtn" type="button" disabled><span class="button-icon" aria-hidden="true">▱</span><span>카드 뽑기</span><kbd>←</kbd></button>
+        <button id="rollBtn" type="button" disabled><span class="button-icon" aria-hidden="true">⚄</span><span>주사위 굴리기</span><kbd>→</kbd></button>
+      </div>
+      <section class="dice-tray" aria-label="이번 턴의 주사위">
+        <div class="dice"><span class="dice-label">두더지</span><div class="die" id="m1">?</div><div class="die" id="m2">?</div><span id="mSum" class="dice-sum">—</span></div>
+        <div class="dice boss-dice"><span class="dice-label">보스</span><div class="die" id="b1">?</div><div class="die" id="b2">?</div><span id="bSum" class="dice-sum">—</span></div>
+      </section>
+      <button id="nextBtn" class="next-btn" type="button" hidden>다음 레벨</button>
+      <section id="steps" class="paper-panel">
+        <h2>☷ 진행 과정 <span id="turnLabel">TURN 01</span></h2>
+        <div id="stepLines" role="status">카드를 뽑으면 전투가 시작됩니다.</div>
+      </section>
+      <section class="log-panel paper-panel">
+        <h2>☷ 전투 로그</h2>
+        <div id="log" role="log" aria-label="전투 기록" aria-live="polite"></div>
+      </section>
+    </aside>
+
+    <div class="battlefield">
+      <div class="battle-heading">
+        <div class="plush-title"><span>두더지몰</span><h1>PLUSH BATTLE</h1></div>
+        <div class="boss-crest"><span>BOSS</span><strong id="bossTitle">코끼리</strong><i aria-hidden="true">✦</i></div>
+      </div>
+      <div class="boss-health health-panel">
+        <div class="arena-hp"><span><b id="bossLevel">LV1</b> <span id="bossBarLabel">코끼리</span></span><span id="arenaBossHp">50 / 50</span></div>
+        <div class="hpbar"><div id="arenaBossBar" style="width:100%"></div></div>
+      </div>
+
+      <div class="arena-field" aria-label="실시간 전투 애니메이션">
+        <div id="arenaMole" class="fighter">
+          <div id="arenaMoleName" class="name">출전 준비</div>
+          <div id="arenaMoleArt" class="hero-art"></div>
+        </div>
+        <div id="arenaBoss" class="fighter">
+          <div id="arenaBossName" class="sr-only">보스</div>
+          <div id="oilPool" aria-hidden="true"></div>
+          <div id="arenaBossArt" class="monster"></div>
+          <div id="cottonTears" class="cotton-tears" aria-hidden="true"></div>
+          <div id="oilDrops" class="oil-drops" aria-hidden="true"></div>
+        </div>
+        <div id="damageFloat" aria-live="polite"></div>
+        <div id="impactBurst" aria-hidden="true">✦</div>
+      </div>
+
+      <aside class="passive-panel" aria-label="보스 특성">
+        <div class="passive-ribbon">✦ 보스 특성</div>
+        <h2 id="passiveTitle">보스 정보</h2>
+        <p id="passiveText">보스의 특성을 확인하세요.</p>
+        <div class="passive-numbers"><span id="passiveStack"></span><strong id="passiveAttack"></strong></div>
+        <span class="oil-spot" aria-hidden="true"></span>
+      </aside>
+
+      <div class="den-health health-panel">
+        <div class="arena-hp"><span>☷ 두더지 굴</span><span id="arenaDenHp">500 / 500</span></div>
+        <div class="hpbar"><div id="arenaDenBar" style="width:100%"></div></div>
+      </div>
+      <div class="battle-status"><span id="phaseBadge">카드 대기</span><p id="arenaStatus" role="status">전투를 준비하고 있어요.</p></div>
+      <div id="resultBanner" hidden role="status"></div>
+      <span class="scene-label" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <details class="battle-details">
+    <summary>능력치와 전투 규칙</summary>
+    <div class="detail-grid"><section id="boss" class="boss-info"></section><section id="den" class="den-info"></section><p>더블: 공격력 ×2<br>합이 10: 지배력 ×2<br>곱이 6 또는 16: 공감력 ×2<br><small>보스를 쓰러뜨리면 다음 레벨이 열립니다.<br>열린 레벨은 다시 선택할 수 있어요.<br>태티서는 언제나 최종 보스입니다.</small></p></div>
+  </details>
+</main>
+<script type="module" src="../src/minigame.js?v=zl-henry-final-20261124"></script>
+</body>
+</html>
+
