@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#1b0b16">
-  <meta name="description" content="두더지몰 황금 카지노 — 테이블을 선택하여 카드 배틀, 카드 사전, 보스 사전, 거대 동물 사냥, 포춘쿠키에 입장하세요.">
+  <meta name="description" content="두더지몰 황금 카지노 — 카드 테이블에서 카드게임, 클로버 조명에서 보스 사전, 별 조명에서 카드 사전을 만나보세요.">
   <title>두더지몰 | 황금 카지노 라운지</title>
   <link rel="preload" as="image" href="/assets/scenes/casino-moles-gold.webp">
   <style>
@@ -27,6 +27,8 @@
     .zone:hover::before,.zone:focus-visible::before,.zone:focus-within::before,.zone.is-open::before {border-color:#ffe1a849;box-shadow:0 0 30px #f4c26b4a, inset 0 0 20px #f4c26b18;background:radial-gradient(ellipse,#ffe4a612,transparent 70%)}
     .zone:focus-visible {outline:2px solid #ffe0a6;outline-offset:4px;border-radius:20px}
     .zone-cards {left:0%;top:59%;width:43%;height:36%}
+    .zone-clover {left:0%;top:37%;width:7%;height:17%;border-radius:50%}
+    .zone-star {right:0%;top:37%;width:7%;height:17%;border-radius:50%}
     .zone-hunt {left:61%;top:56%;width:39%;height:38%}
     .zone-fortune {left:38.5%;top:26.5%;width:23%;height:39%}
     .hint {position:absolute;left:50%;z-index:5;transform:translate(-50%,12px);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .19s,transform .19s,visibility .19s;background:linear-gradient(145deg,#4b1726f2,#210c1bf4);color:#ffeed2;box-shadow:0 13px 35px #10050cbf,0 0 20px #ffc46d45;border:1.5px solid #f8cf85;border-radius:15px;backdrop-filter:blur(8px);text-align:center;white-space:nowrap}
@@ -36,6 +38,8 @@
     .single-hint {top:-6%;padding:12px 20px}
     .zone-fortune .single-hint {top:-6%}
     .zone-hunt .single-hint {top:-13%}
+    .zone-clover .single-hint {top:100%;left:25%}
+    .zone-star .single-hint {top:100%;left:75%}
     .table-menu {top:-65%;width:clamp(230px,19vw,310px);padding:12px;text-align:left}
     .table-menu .group-title {display:block;padding:2px 7px 9px;color:#ffd18d;font-size:12px;font-weight:850;letter-spacing:.05em}
     .table-menu a {display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-radius:10px;border:1px solid transparent;white-space:nowrap;transition:background .15s,border-color .15s,transform .15s}
@@ -74,14 +78,15 @@
     <span><b>두더지몰</b><small>PLUSH CASINO</small></span>
    </div>
    <nav aria-label="카지노 기구 선택">
-     <div class="zone zone-cards" tabindex="0" role="group" aria-expanded="false" aria-label="왼쪽 카드 테이블: 카드 배틀, 카드 사전, 보스 사전. 마우스를 올리거나 포커스하세요.">
-       <div class="hint table-menu" aria-label="카드 테이블 메뉴">
-         <span class="group-title">♠ 카드 테이블</span>
-         <a href="/battle/"><span>🃏 카드 배틀</span><small>2인 대전</small></a>
-         <a href="/cards/"><span>📖 카드 사전</span><small>두더지 카드</small></a>
-         <a href="/bosses/"><span>📚 보스 사전</span><small>단계별 보스</small></a>
-       </div>
-     </div>
+     <a class="zone zone-cards" href="/battle/" aria-label="왼쪽 카드 테이블: 카드게임">
+       <span class="hint single-hint"><span class="hint-name">🃏 카드게임</span><span class="hint-sub">카드 배틀 입장</span></span>
+     </a>
+     <a class="zone zone-clover" href="/bosses/" aria-label="왼쪽 클로버 조명: 보스 사전">
+       <span class="hint single-hint"><span class="hint-name">🍀 보스 사전</span><span class="hint-sub">보스 정보 보기</span></span>
+     </a>
+     <a class="zone zone-star" href="/cards/" aria-label="오른쪽 별 조명: 카드 사전">
+       <span class="hint single-hint"><span class="hint-name">⭐ 카드 사전</span><span class="hint-sub">캐릭터 카드 보기</span></span>
+     </a>
      <a class="zone zone-hunt" href="/minigame/" aria-label="오른쪽 룰렛 테이블: 거대 동물 사냥">
        <span class="hint single-hint"><span class="hint-name">🎯 거대 동물 사냥</span><span class="hint-sub">보스와 전투하기</span></span>
      </a>
@@ -89,32 +94,29 @@
        <span class="hint single-hint"><span class="hint-name">🥠 오늘은 두더지굴!</span><span class="hint-sub">포춘쿠키 운세 뽑기</span></span>
      </a>
    </nav>
-   <p class="hover-help">✦ 테이블과 중앙 행운 기구에 마우스를 올려보세요 ✦</p>
+   <p class="hover-help">✦ 카드 테이블 · 클로버 조명 · 별 조명 · 룰렛 · 중앙 행운 기구를 선택하세요 ✦</p>
   </section>
   <details class="mobile-dock"><summary>✦ 게임 메뉴</summary><nav class="mobile-links" aria-label="모바일 게임 메뉴">
     <strong>♠ 카드 테이블</strong>
-    <a href="/battle/">🃏 카드 배틀</a>
-    <a href="/cards/">📖 카드 사전</a>
-    <a href="/bosses/">📚 보스 사전</a>
+    <a href="/battle/">🃏 카드게임</a>
+    <strong>조명 사전</strong>
+    <a href="/bosses/">🍀 클로버 조명 · 보스 사전</a>
+    <a href="/cards/">⭐ 별 조명 · 카드 사전</a>
     <strong>다른 게임</strong>
     <a href="/minigame/">🎯 거대 동물 사냥</a>
     <a href="/fortune/">🥠 오늘은 두더지굴!</a>
   </nav></details>
  </main>
  <script>
-   const table=document.querySelector('.zone-cards');
-   function showTable(expanded){table.classList.toggle('is-open',expanded);table.setAttribute('aria-expanded',String(expanded));}
-   table.addEventListener('click',function(e){if(e.target.closest('a'))return;showTable(!table.classList.contains('is-open'));});
-   table.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){if(e.target!==table)return;e.preventDefault();showTable(!table.classList.contains('is-open'));}});
    document.addEventListener('keydown',function(e){
-     if(e.key!=='Escape')return;
-     showTable(false);
-     let d=document.querySelector('.mobile-dock[open]');if(d){d.open=false;e.preventDefault()}
-     if(document.activeElement?.classList?.contains('zone-cards'))document.activeElement.blur();
+     if(e.key==='Escape'){
+       const dock=document.querySelector('.mobile-dock[open]');
+       if(dock){dock.open=false;e.preventDefault()}
+     }
    });
    document.addEventListener('pointerdown',function(e){
-     let d=document.querySelector('.mobile-dock[open]');if(d&&!d.contains(e.target))d.open=false;
-     if(!table.contains(e.target))showTable(false);
+     const dock=document.querySelector('.mobile-dock[open]');
+     if(dock&&!dock.contains(e.target))dock.open=false;
    });
  </script>
 </body>
