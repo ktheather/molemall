@@ -1,5 +1,6 @@
+import { battleArt } from './battle-art.js?v=arena4';
 // 두더지몰 본 게임 — 로비 + 네트워크 + 렌더링. 규칙은 battle-rules.js, 연결은 net.js
-import { createGame, applyAction, COST, DRAW_PER_TURN, HAND_LIMIT } from './battle-rules.js?v=louis-20261126';
+import { createGame, applyAction, COST, DRAW_PER_TURN, HAND_LIMIT } from './battle-rules.js?v=four-turns';
 import { host, join, makeCode } from './net.js';
 
 const $ = id => document.getElementById(id);
@@ -94,7 +95,7 @@ function cardHtml(c, opts = {}) {
   if (!c) return `<div class="card empty">비어 있음</div>`;
   return `<div class="card ${opts.cls ?? ''}${(c.tags ?? []).includes('임원') ? ' gold' : ''}" ${opts.attr ?? ''}>
     <h3>${c.name}</h3>
-    <img src="../${c.image}?v=${IMG_V}" alt="" style="transform:scale(${c.imageScale ?? 1})">
+    <img src="${battleArt(c)}?v=${IMG_V}" alt="">
     ${stat(c.stats)}
     <div class="note">${c.trait || ''}</div></div>`;
 }
@@ -109,8 +110,7 @@ function setBar(id, hp, max = 500) {
 function setSprite(id, card, owner) {
   const el = $(id);
   el.classList.toggle('empty', !card);
-  el.querySelector('img').src = (card ? '../' + card.image : '../assets/moles/OnlyLogo_BK.png') + '?v=' + IMG_V;
-  el.querySelector('img').style.transform = `scale(${card?.imageScale ?? 1})`;
+  el.querySelector('img').src = (card ? battleArt(card) : '../assets/moles/OnlyLogo_BK.png') + '?v=' + IMG_V;
 }
 
 let lastAttackSeen = null;

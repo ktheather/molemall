@@ -148,5 +148,4 @@ kbd{font:inherit;margin-left:auto;font-size:14px;opacity:.75}
 /* Keep the plush weapon larger than the player sprite and clear of the HP controls. */
 #arenaMoleArt.mfx-battle-root { --mfx-prop-size: clamp(125px, 28vw, 420px); }
 #arenaBossArt.mfx-l { --mfx-prop-size: clamp(135px, 28vw, 420px); }
-.arena[data-active-mole="sally"] { background-image: linear-gradient(#32152332,#32152355), url('../assets/scenes/sally-gold-vault.webp'); }
 #arenaBoss .aiden-jellyfish-orbit { width: 53%; max-width: 320px; }

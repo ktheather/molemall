@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f7e6e6">
   <title>PLUSH BATTLE · 두더지몰</title>
-  <link rel="stylesheet" href="../src/minigame.css?v=character-refresh-20261125">
+  <link rel="stylesheet" href="../src/minigame.css?v=arena4">
 
-<link rel="stylesheet" href="../src/character-fx.css?v=louis-20261126"> <!-- MOLEMALL_CHARACTER_FX -->
-<link rel="stylesheet" href="../src/executive-frame.css?v=louis-20261126">
+<link rel="stylesheet" href="../src/character-fx.css?v=arena4"> <!-- MOLEMALL_CHARACTER_FX -->
+<link rel="stylesheet" href="../src/executive-frame.css?v=arena4">
+<link rel="stylesheet" href="../src/character-dictionary.css?v=arena4">
+<link rel="stylesheet" href="../src/arena-presentation.css?v=arena4">
 </head>
 <body>
 <main class="game-shell">
@@ -55,6 +57,8 @@
       </div>
 
       <div class="arena-field" aria-label="실시간 전투 애니메이션">
+        <img id="denPoison" hidden src="../assets/fx/venom-pool.webp" alt="두더지 굴 중독">
+        <img id="molehill" src="../assets/scenes/molehill.webp" alt="두더지 굴">
         <div id="arenaMole" class="fighter">
           <div id="arenaMoleName" class="name">출전 준비</div>
           <div id="arenaMoleArt" class="hero-art"></div>
@@ -90,10 +94,10 @@
 
   <details class="battle-details">
     <summary>능력치와 전투 규칙</summary>
-    <div class="detail-grid"><section id="boss" class="boss-info"></section><section id="den" class="den-info"></section><p>더블: 공격력 ×2<br>합이 10: 지배력 ×2<br>곱이 6 또는 16: 공감력 ×2<br><small>보스를 쓰러뜨리면 다음 레벨이 열립니다.<br>열린 레벨은 다시 선택할 수 있어요.<br>태티서는 언제나 최종 보스입니다.</small></p></div>
+    <div class="detail-grid"><section id="boss" class="boss-info"></section><section id="den" class="den-info"></section><p>더블: 공격력 ×2<br>합이 10: 지배력 ×2<br>곱이 6 또는 16: 공감력 ×2<br><small>보스를 쓰러뜨리면 다음 레벨이 열립니다.<br>열린 레벨은 다시 선택할 수 있어요.<br>최종 보스까지 승리하면 사냥을 완료합니다.</small></p></div>
   </details>
 </main>
-<script type="module" src="../src/minigame.js?v=louis-20261126"></script>
+<script type="module" src="../src/minigame.js?v=arena4"></script>
 </body>
 </html>
 

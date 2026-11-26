@@ -123,21 +123,6 @@
 @media(max-width:800px){.mfx-modal{grid-template-columns:1fr;padding:13px;}.mfx-preview-card{max-width:420px;width:100%;justify-self:center}.mfx-modal-side{padding:0 3px}.mfx-card-tile{width: min(44vw,190px)!important}}
 @media(max-width:450px){#mfx-detail-screen{padding:6px}.mfx-modal{border-radius:12px;padding:10px;gap:10px}.mfx-card-statline span{font-size:10px}.mfx-flow-panel div{font-size:10px}.mfx-modal-side h3{font-size:17px}}
 @media(prefers-reduced-motion:reduce){.mfx-scene *,.mfx-card-tile *, .mfx-battle-root *, .mfx-card-tile {animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-/* Jacob uses a waist-up portrait: scale it to the player's half of the arena.
-   Avoid the generic sprite lunge translating the portrait underneath the control panel. */
-#arenaMoleArt.mfx-battle-root.mfx-jacob > img {
-  width: 74% !important;
-  max-width: 74% !important;
-  height: 84% !important;
-  max-height: 84% !important;
-  object-fit: contain;
-  object-position: center bottom;
-  position: absolute !important;
-  left: 18% !important;
-  bottom: 0 !important;
-  margin-left: 0;
-  margin-bottom: 0;
-}
 #arenaMoleArt.mfx-battle-root.mfx-jacob.mfx-phase-special > img {
   animation: mfx-jacob-battle-special .82s ease-in-out both !important;
 }

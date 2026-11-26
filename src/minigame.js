@@ -1,12 +1,13 @@
-import { mountCombatCharacter, animateCharacter, shouldJacobStun, playCharacterSound } from "./character-fx.js?v=louis-20261126"; // MOLEMALL_CHARACTER_FX
+import { tile } from './collectible.js';
+import { mountCombatCharacter, animateCharacter, shouldJacobStun, playCharacterSound } from "./character-fx.js?v=arena4"; // MOLEMALL_CHARACTER_FX
 // 두더지몰 — 턴 진행 + UI 바인딩
 import { rollDie, resolveAttack } from './rules.js?v=louis-20261126';
 import { startLouisPoison, tickLouisPoison } from './louis-poison.js';
 import { checkAttack, attackCount, rollProcs, rollOneDieFor, matchingDiceSummon } from './effects.js?v=zl-henry-final-20261124';
 import { createBossState, takeBossHit } from './boss-passives.js?v=zl-henry-final-20261124';
-import { battleArt } from './battle-art.js?v=character-refresh-20261125';
+import { battleArt } from './battle-art.js?v=arena4';
 import { sallyAttackSequence } from './sally-combo.js';
-import { AIDEN_DOT_TURNS, isAidenJellyfishRoll, aidenHealAmount, tickAidenJellyfish } from './aiden-jellyfish.js';
+import { AIDEN_DOT_TURNS, isAidenJellyfishRoll, aidenHealAmount, tickAidenJellyfish } from './aiden-jellyfish.js?v=four-turns';
 import { buildBossStages, normalizeClearedBossIds, getUnlockedLevel, canEnterStage } from './boss-stages.js?v=z-l-final-20261124';
 
 const DEN_HP = 500; // 두더지 굴(플레이어) 체력
@@ -87,26 +88,14 @@ const hpBar = (cur, max) =>
 
 function renderMole(m) {
   setArenaMole(m);
-  $('mole').className = 'card' + ((m.tags ?? []).includes('임원') ? ' gold' : '');
-  $('mole').innerHTML = `
-    <h2>${m.name}</h2>
-    <div class="card-art"><img src="${battleArt(m)}?v=${IMG_V}" alt="${m.name}"></div>
-    ${statsHtml(m.stats)}
-    <div class="note">${m.trait}</div>`;
+  const card = $('mole');
+  card.className = 'card mfx-card-tile' + (m.tags?.includes('임원') ? ' gold' : '');
+  card.dataset.id = m.id;
+  card.innerHTML = tile(m);
 }
 
 function renderBoss() {
   updateArenaBars();
-  // Keep the summoned jellyfish visibly beside the boss while delayed damage remains.
-  const bossActor=$('arenaBoss');
-  let jellyfish=bossActor.querySelector('.aiden-jellyfish-orbit');
-  if(aidenShockTurns>0 && !jellyfish) {
-    jellyfish=document.createElement('img');
-    jellyfish.className='aiden-jellyfish-orbit';
-    jellyfish.src='../assets/fx/aiden-jellyfish.webp';
-    jellyfish.alt=''; jellyfish.setAttribute('aria-hidden','true');
-    bossActor.appendChild(jellyfish);
-  } else if(aidenShockTurns<=0 && jellyfish) jellyfish.remove();
   const oil = boss.id === 'taetiseo';
   const brothers = boss.id === 'pure_brothers';
   const text = (id, value) => { if ($(id)) $(id).textContent = value; };
@@ -120,12 +109,13 @@ function renderBoss() {
   $('boss').innerHTML = `
     <h2>LV${boss.level} ${boss.name}${(boss.tags ?? []).includes('임원') ? ' · 👑 임원' : ''}</h2>
     ${hpBar(bossHp, boss.hp)}
-    ${aidenShockTurns>0 ? `<p class="note aiden-shock-active">⚡ 해파리 감전 · 다음 ${aidenShockTurns}턴 동안 매 턴 무작위 2~5 피해</p>` : ''}
+    ${aidenShockTurns>0 ? `<p class="note aiden-shock-active">⚡ 해파리 감전 · 다음 ${aidenShockTurns}턴 동안 매 턴 무작위 2~4 피해</p>` : ''}
     ${statsHtml(boss.stats)}
     <p class="note">🎲 기본 공격 ${baseStats(boss).attack}×${boss.attackDie}/2 = ${fmt(boss.spawnAttack)}${oil ? ` · 기름 ${boss.oilStacks}회 → ${fmt(boss.stats.attack)}` : ''} / 지배력 ${baseStats(boss).dominance}×${boss.dominanceDie}/2 = ${fmt(boss.stats.dominance)}</p>`;
 }
 
 function renderDen() {
+  $('denPoison').hidden = !(bossLouisPoison?.poison > 0);
   updateArenaBars();
   $('den').innerHTML = `<h2>🏠 두더지 굴</h2>${hpBar(denHp, DEN_HP)}`;
 }
@@ -182,7 +172,7 @@ function spawnBoss(lv) {
   $('bossBarLabel').textContent = boss.name;
   const arena = document.querySelector('.arena');
   arena.dataset.level = String(boss.level);
-  delete arena.dataset.activeMole;
+
   arena.dataset.boss = boss.id;
   document.querySelector('.scene-label').textContent = boss.id === 'taetiseo' ? `LV.${String(boss.level).padStart(2, '0')} · 쓰레기장` : boss.id === 'pure_brothers' ? `LV.${String(boss.level).padStart(2, '0')} · 전산실` : boss.id === 'l' ? `LV.${String(boss.level).padStart(2, '0')} · 뱀의 극장` : '';
   updateBossPath();
@@ -213,6 +203,8 @@ function spawnBoss(lv) {
   } else {
     bossArt.textContent=boss.name.includes('코끼리')?'🐘':boss.name.includes('곰')?'🐻':boss.name.includes('호랑이')?'🐯':'🦣';
   }
+  clearBossShock();
+  sizeMolehill();
   if(boss.id==='bori')startBoriIdle();else{clearInterval(boriTimer);boriGeneration++;boriAction=false;}
   $('arenaStatus').textContent='보스가 등장했습니다. 카드를 뽑아주세요.';
   renderBoss();
@@ -263,6 +255,18 @@ function updateArenaBars() {
     $('arenaDenBar').style.width=`${Math.max(0,Math.min(100,denHp/DEN_HP*100))}%`;
   }
 }
+function sizeMolehill() {
+  const art = $('arenaBossArt');
+  const sprite = art.querySelector(':scope > img, .bori-sprite');
+  if (!sprite) return;
+  let width = sprite.clientWidth;
+  if (sprite.naturalWidth) {
+    width = Math.min(width, sprite.clientHeight * sprite.naturalWidth / sprite.naturalHeight);
+  }
+  document.querySelector('.arena-field').style.setProperty('--den-width', width / 2 + 'px');
+}
+new ResizeObserver(sizeMolehill).observe($('arenaBossArt'));
+$('arenaBossArt').addEventListener('load', sizeMolehill, true);
 function setArenaMole(m) {
   const art=$('arenaMoleArt');
   document.querySelector('.arena').dataset.activeMole = m.id;
@@ -329,6 +333,25 @@ function showBrothersHurt() {
   },1200);
 }
 
+let shockTimer;
+function clearBossShock() {
+  clearTimeout(shockTimer);
+  $('arenaBoss').classList.remove('electrocuted');
+  $('arenaBoss').querySelector('.shock-xray')?.remove();
+}
+function showBossShock() {
+  clearBossShock();
+  const frame = document.createElement('div');
+  frame.className = 'shock-xray';
+  frame.setAttribute('aria-hidden','true');
+  const bones = document.createElement('img');
+  bones.src = '../assets/fx/shock-' + boss.id + '.webp';
+  bones.alt = '';
+  frame.append(bones, document.createElement('i'), document.createElement('i'));
+  $('arenaBoss').append(frame);
+  $('arenaBoss').classList.add('electrocuted');
+  shockTimer = setTimeout(clearBossShock, 760);
+}
 function hitBoss(damage) {
   const result = takeBossHit(boss, bossHp, damage);
   boss = result.boss;
@@ -376,26 +399,49 @@ async function animateCombat(attacker, damage, targetName, onImpact, {phase='att
     void actor.offsetWidth;
     actor.classList.add('attack');
   }
+  const sourceBox = art.getBoundingClientRect();
+  const targetBox = target.getBoundingClientRect();
+  const field = target.parentElement.getBoundingClientRect();
+  const hitX = targetBox.left + targetBox.width * .5;
+  const hitY = targetBox.top + targetBox.height * .54;
+  const dx = hitX - (sourceBox.left + sourceBox.width * (hero ? .64 : .38));
+  const dy = hitY - (sourceBox.top + sourceBox.height * .44);
   const impactTime = Math.round(hasCharacterFx ? duration * .68 : 340);
+  const attackMs = hasCharacterFx ? duration : 800;
+  const ranged = hasCharacterFx && art.querySelector('.mfx-travel, .mfx-quill-track, .mfx-aiden-jellyfish');
+  const fraction = ranged ? .16 : .72;
+  const lunge = actor.animate([{translate:'0 0'}, {
+    translate:`${dx*fraction}px ${dy*fraction}px`, offset:impactTime/attackMs
+  }, {translate:'0 0'}], {duration:attackMs, easing:'ease-in-out'});
+  art.style.setProperty('--mfx-reach', Math.abs(dx*(1-fraction))+'px');
+  art.style.setProperty('--arena-dx', (dx*(1-fraction))+'px');
+  art.style.setProperty('--arena-dy', (dy*(1-fraction))+'px');
+  for (const effect of [$('impactBurst'), $('damageFloat')]) {
+    effect.style.left = (hitX-field.left)+'px';
+    effect.style.top = (hitY-field.top)+'px';
+  }
   await wait(impactTime);
   target.classList.add('hit');
   onImpact?.();
+  if (hero && fighter.id === 'aiden' && art.classList.contains('mfx-phase-special')) showBossShock();
   if (damage > 0) {
     sound('impact');
     if (hero && !['taetiseo','pure_brothers'].includes(boss.id)) cottonTears();
     const burst = $('impactBurst');
-    burst.style.left = hero ? '65%' : '20%';
+
     burst.classList.remove('show'); void burst.offsetWidth; burst.classList.add('show');
   }
   if(boss?.id==='bori') void animateBoriAction(hero?'hit':'attack');
   const floater=$('damageFloat');
   floater.textContent=damage>0?`-${fmt(damage)}`:'방어!';
-  floater.style.left=hero?'64%':'15%';
+
   floater.classList.remove('show');void floater.offsetWidth;floater.classList.add('show');
   $('arenaStatus').textContent=`${targetName} ${fmt(damage)} 피해!`;
-  await wait(hasCharacterFx ? duration - impactTime + (quick ? 75 : 230) : 600);
+  await wait(hasCharacterFx ? duration - impactTime : 600);
+  lunge.cancel();
   finishFx?.();
   finishDefense?.();
+  if (hasCharacterFx) await wait(quick ? 75 : 230);
   actor.classList.remove('attack');target.classList.remove('hit');floater.classList.remove('show');$('impactBurst').classList.remove('show');
 }
 
@@ -495,12 +541,13 @@ async function turn() {
     if (bossHp <= 0) return end(true);
   }
   const louisResting = heroPoison.resting && mole.id === 'l';
-  // Residual jellyfish electricity hits once at the beginning of each of the NEXT three turns,
+  // Residual jellyfish electricity hits once at the beginning of each of the NEXT four turns,
   // independent of which mole is drawn. It does not consume the player's action.
   if (aidenShockTurns>0) {
     const shock = tickAidenJellyfish(aidenShockTurns);
     aidenShockTurns=shock.remaining;
     hitBoss(shock.damage);
+    showBossShock();
     log(`<span class="tag">⚡ 대왕 해파리 지속 감전! ${boss.name} HP -${shock.damage} (남은 ${aidenShockTurns}턴)</span>`);
     step(`⚡ 해파리 지속 감전: ${shock.damage} 피해 · 남은 ${aidenShockTurns}턴`);
     $('arenaStatus').textContent=`⚡ ${boss.name} 감전 피해 ${shock.damage}!`;
@@ -592,8 +639,8 @@ async function turn() {
   if (chk.ok && isAidenJellyfishRoll(mole,m1,m2)) {
     aidenShockTurns=AIDEN_DOT_TURNS;
     renderBoss();
-    log(`<span class="tag">🪼 에이든 대왕 해파리 소환! 공격력 30 · 다음 3턴 동안 감전 피해 2~5</span>`);
-    step('🪼 대왕 해파리 소환: 공격력 30 · 감전 3턴 예약');
+    log(`<span class="tag">🪼 에이든 대왕 해파리 소환! 공격력 30 · 다음 4턴 동안 감전 피해 2~4</span>`);
+    step('🪼 대왕 해파리 소환: 공격력 30 · 감전 4턴 예약');
   }
   if(bossHp<=0){step(`🎉 LV${boss.level} 사냥 성공!`);log(`🎉 <b>LV${boss.level} ${boss.name}</b> 사냥 성공!`);return end(true);}
   lastMoleDiceSum=moleDiceSum;
@@ -639,6 +686,7 @@ async function turn() {
       {phase: counter.louisPoison ? 'special' : 'attack'});
     if (counter.louisPoison && denHp > 0) {
       bossLouisPoison = startLouisPoison();
+      renderDen();
       log('<span class="tag">☠️ 루이스 독 반격! 공격력 30 · 휴식 2턴 · 중독 3턴</span>');
     }
     lastBossDiceSum=b1+b2;
@@ -653,6 +701,7 @@ async function turn() {
   $('stageVisual').textContent='🃏 다음 카드를 뽑아주세요';
   $('arenaStatus').textContent='다음 두더지 카드를 뽑아주세요.';
 }
+let advanceTimer;
 function end(won){
   gameOver=true;
   if(won) {
@@ -666,12 +715,19 @@ function end(won){
   $('arenaStatus').textContent=won?'🎉 보스 사냥 성공!':'💀 두더지 굴이 무너졌습니다.';
   $('drawBtn').disabled=true;$('rollBtn').disabled=true;
   const btn=$('nextBtn'),hasNext=won&&canEnterStage(data.bosses,clearedBossIds,level+1);
-  btn.hidden=false;btn.textContent=hasNext?`다음 레벨 (LV${level+1})`:won?'LV1 다시 시작':'다시 도전';
-  btn.onclick=()=>startStage(hasNext ? level+1 : won ? 1 : level, { restoreDen: !hasNext });
+  if (hasNext) {
+    btn.hidden = true;
+    $('resultBanner').querySelector('small').textContent = `${boss.name}에게 승리했어요. LV${level+1} 사냥터로 이동합니다.`;
+    advanceTimer = setTimeout(() => startStage(level+1, {restoreDen:false}), 1250);
+    return;
+  }
+  btn.hidden=false;btn.textContent=won?'LV1 다시 시작':'다시 도전';
+  btn.onclick=()=>startStage(won ? 1 : level);
 }
 
 function startStage(nextLevel, { restoreDen = true } = {}) {
   if (busy || !data || !canEnterStage(data.bosses, clearedBossIds, nextLevel)) return;
+  clearTimeout(advanceTimer);
   level = nextLevel;
   selectedMole = null;
   turnNumber = 1;
@@ -698,7 +754,15 @@ function startStage(nextLevel, { restoreDen = true } = {}) {
     }
     $(prefix + 'Sum').textContent = '—';
   }
-  renderMole(data.moles.find(mole => mole.id === 'harper') ?? data.moles[0]);
+  delete document.querySelector('.arena').dataset.activeMole;
+  $('arenaMoleArt').className = 'hero-art';
+  $('arenaMoleArt').replaceChildren();
+  $('arenaMoleName').textContent = '두더지 굴';
+  const card = $('mole');
+  card.className = 'card card-back';
+  delete card.dataset.id;
+  card.innerHTML = '<span>두더지몰</span>';
+  $('cardState').textContent = '뽑기 전';
   spawnBoss(level);
   renderDen();
   step(`LV${level} ${boss.name} · 카드를 뽑아주세요.`, true);

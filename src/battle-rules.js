@@ -1,3 +1,4 @@
+import { AIDEN_DOT_TURNS, isAidenJellyfishRoll, tickAidenJellyfish } from './aiden-jellyfish.js?v=four-turns';
 // 두더지몰 본 게임: 2인 카드 배틀 — 순수 상태 머신 (네트워크/UI 없음)
 // 호스트가 이 함수들로 상태를 갱신하고, 결과 상태를 게스트에게 그대로 보낸다.
 import { diceBonus, resolveAttack } from './rules.js?v=louis-20261126';
@@ -21,7 +22,7 @@ export function createGame(cards, names = ['P1', 'P2']) {
     cards: Object.fromEntries(cards.map(c => [c.id, c])),
     pool: cards.map(c => c.id),
     players: [0, 1].map(i => ({
-      name: names[i], hp: DEN_HP, coins: START_COINS, hand: [], active: null, orderDie: null, skipTurn: false, lastDiceSum: null, dieRolledBy: null, henryAttackLock: false, louisPoison: null,
+      name: names[i], hp: DEN_HP, coins: START_COINS, hand: [], active: null, orderDie: null, skipTurn: false, lastDiceSum: null, dieRolledBy: null, henryAttackLock: false, louisPoison: null, aidenShockTurns: 0,
     })),
     turn: null,                // 현재 턴 플레이어 index
     turnPhase: null,           // 'draw' → 'act'
@@ -58,7 +59,7 @@ function startPlay(s, first, rng) {
   log(s, `🎲 선공: <b>${s.players[first].name}</b>. 각자 카드 ${START_HAND}장을 받았다.`);
 }
 
-function applyLouisPoisonTick(s, player, rng) {
+function applyOngoingDamage(s, player, rng) {
   const me = s.players[player], op = s.players[other(player)];
   const poison = tickLouisPoison(me.louisPoison, rng);
   me.louisPoison = poison.next;
@@ -67,10 +68,16 @@ function applyLouisPoisonTick(s, player, rng) {
     op.hp = Math.max(0, op.hp - damage);
     log(s, `<span class="fx">☠️ 루이스 중독 · ${op.name}의 굴에 ${damage} 피해</span>`);
   }
+  const shock = tickAidenJellyfish(me.aidenShockTurns, rng);
+  me.aidenShockTurns = shock.remaining;
+  if (op.hp > 0 && shock.damage) {
+    op.hp = Math.max(0, op.hp - shock.damage);
+    log(s, `<span class="fx">⚡ 해파리 지속 감전 · ${op.name}의 굴에 ${shock.damage} 피해 (남은 ${shock.remaining}턴)</span>`);
+  }
   if (op.hp <= 0) {
     s.phase = 'over'; s.winner = player;
     s.lastAttack = null;
-    log(s, `🏆 <b>${me.name}</b> 승리! 중독으로 ${op.name}의 굴이 무너졌다.`);
+    log(s, `🏆 <b>${me.name}</b> 승리! 지속 피해로 ${op.name}의 굴이 무너졌다.`);
   }
   return poison.resting;
 }
@@ -79,7 +86,7 @@ function endTurn(s, rng) {
   const next = other(s.turn);
   if (s.players[next].skipTurn) {          // 카드 효과로 한 턴 쉼 → 지금 플레이어가 한 번 더
     s.players[next].skipTurn = false;
-    applyLouisPoisonTick(s, next, rng);
+    applyOngoingDamage(s, next, rng);
     if (s.phase === 'over') return;
     log(s, `💤 ${s.players[next].name}은(는) 이번 턴을 쉰다. ${s.players[s.turn].name}이(가) 한 번 더!`);
   } else s.turn = next;
@@ -183,7 +190,7 @@ export function applyAction(state, action, rng = Math.random) {
       if (!me.hand.includes(action.cardId)) return fail(s, '손패에 없는 카드');
       const atkCard = s.cards[action.cardId];
       const defCard = defenderCard(s, other(p));
-      const louisResting = applyLouisPoisonTick(s, p, rng);
+      const louisResting = applyOngoingDamage(s, p, rng);
       if (s.phase === 'over') return ok(s);
       if (louisResting && atkCard.id === 'l') {
         me.active = atkCard.id;
@@ -253,6 +260,10 @@ export function applyAction(state, action, rng = Math.random) {
         log(s, `⚔️ ${me.name}의 <b>${atkCard.name}</b>${hits > 1 ? ` (${h + 1}타)` : ''} 🎲${e1}+${e2} ${tags} → ${op.name}의 ${defCard.name}에게 데미지 <b>${r.damage}</b>`
           + (fxLine ? `<div class="fx">${fxLine}</div>` : '')
           + `<div class="calc">공격 (${r.attackerStats.attack}+${r.sum})×${r.attackMul}−지배${r.defDominance}=${r.effAttack} / 방어 ${r.defenderStats.defense}−공감${r.effEmpathy}=${r.effDefense}</div>`);
+      }
+      if (isAidenJellyfishRoll(atkCard,d1,d2) && op.hp > 0) {
+        me.aidenShockTurns = AIDEN_DOT_TURNS;
+        log(s, '<span class="fx">⚡ 대왕 해파리 감전 · 다음 4턴 동안 2~4 피해</span>');
       }
       const helperId = matchingDiceSummon(atkCard,d1,d2);
       if (helperId && op.hp > 0) {

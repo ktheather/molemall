@@ -165,7 +165,7 @@
   inset: 0;
   background: radial-gradient(ellipse at center, #240d1620 30%, #210d1b58 100%);
 }
-.mfx-d3-portrait > img, #grid .mfx-cover > img {
+.mfx-d3-portrait > img, .mfx-card-tile .mfx-cover > img {
   position: absolute;
   inset: 0;
   margin: auto !important;
@@ -176,19 +176,19 @@
   object-fit: contain;
   object-position: center;
 }
-.mfx-d3-portrait > .mfx-portrait-sprite, #grid .mfx-cover > .mfx-portrait-sprite {
+.mfx-d3-portrait > .mfx-portrait-sprite, .mfx-card-tile .mfx-cover > .mfx-portrait-sprite {
   inset: 3% 0 auto;
   width: 100% !important;
   height: 182% !important;
   object-position: center top;
   filter: drop-shadow(0 5px 9px #200d1cb0);
 }
-.mfx-d3-portrait > .mfx-portrait-art, #grid .mfx-cover > .mfx-portrait-art {
+.mfx-d3-portrait > .mfx-portrait-art, .mfx-card-tile .mfx-cover > .mfx-portrait-art {
   object-fit: contain;
   object-position: center;
 }
 [data-character="sally"] .mfx-d3-portrait > .mfx-portrait-art,
-#grid [data-id="sally"] .mfx-cover > .mfx-portrait-art {
+.mfx-card-tile[data-id="sally"] .mfx-cover > .mfx-portrait-art {
   object-fit: cover;
   object-position: center 42%;
 }

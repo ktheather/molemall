@@ -1,4 +1,4 @@
-import { battleArt } from './battle-art.js?v=character-refresh-20261125';
+import { battleArt } from './battle-art.js?v=arena4';
 /** Shared visual direction for the card dictionary and live battle.
  * No game state is mutated here. Stat/turn changes live in the battle engine.
  */
@@ -12,7 +12,7 @@ export const CHARACTER_FX = Object.freeze({
   olivia: { label: '올리비아', accent: '#ff96c0', prop: '🎂', idle: '파티 모자를 쓰고 작은 케이크 옆에서 꾸벅꾸벅', attack: '키미에게는 분홍 하트 연기, 션에게는 거대화와 별빛 안광', special: '키미: 하트 연기 / 션: 표창 안광·거대화·분노', flow: ['반갑게 축하하기', '케이크·꽃가루 축하', '키미 하트 / 션 분노'] },
   jacob: { label: '제이콥', accent: '#fa6a63', prop: '🤡', idle: '따봉하며 광대 인형 둘이 머리 주변 회전', attack: '일반 공격은 따봉 자세 유지', special: 'ㅌ 초성 상대: 공포 광대 페이드 → 표창 안광 → 공격력 50', flow: ['인형 둘이 빙글빙글', '공포 광대 페이드', '표창 안광·공격 50'] },
   sally: { label: '샐리', accent: '#f4d36f', prop: '💎', idle: '두더지 중 가장 부유한 샐리. 황금 금고에서 펜과 수첩을 들고 대기', attack: '펜·수첩을 내려놓고 거대한 망치를 꺼내 6의 공격을 연속으로 분배', special: '4회 이상 타격하면 다이아몬드가 떨어져 추가 피해 6', flow: ['무작위 2~6회 연속 타격 · 합계 6', '4회 이상 타격 여부 확인', '다이아몬드 추가 공격 6'] },
-  aiden: { label: '에이든', accent: '#a78afb', prop: '🪼', idle: '꽃 모양 이펙트가 주위를 둥실둥실', attack: '초롱초롱한 눈으로 가느다란 막대를 물고 비눗방울을 후후 불기', special: '주사위 합 10 이상: 대왕 해파리 감전 공격력 30 · 이후 3턴간 2~5 피해', flow: ['주변에 꽃 이펙트', '가느다란 막대 · 비눗방울', '해파리 소환 · 감전'] },
+  aiden: { label: '에이든', accent: '#a78afb', prop: '🪼', idle: '꽃 모양 이펙트가 주위를 둥실둥실', attack: '초롱초롱한 눈으로 가느다란 막대를 물고 비눗방울을 후후 불기', special: '주사위 합 10 이상: 대왕 해파리 감전 공격력 30 · 이후 4턴간 2~4 피해', flow: ['주변에 꽃 이펙트', '가느다란 막대 · 비눗방울', '해파리 소환 · 감전'] },
   hailey: { label: '헤일리', accent: '#c8d9db', prop: '🍎', idle: '은사과를 쓰담쓰담', attack: '안경을 끼면서 은사과를 집어던짐', special: '뒤 배경에 사과나무가 자라남', flow: ['은사과 쓰담', '안경 장착 · 은사과 투척', '사과나무 성장'] },
   henry: { label: '헨리', accent: '#f0c68a', prop: '✨', idle: '검정 후드티와 안경으로 여유롭게 대기', attack: '안경을 집어던지고 후드티 차림으로 빠르게 돌진', special: '더블 주사위 · 민소매와 털코트로 갈아입으며 후광 발동. 상대 공격력 1', flow: ['검정 후드티 기본 상태', '더블 주사위 · 후광', '민소매 · 털코트 진화'] },
   z: { label: 'Z', accent: '#ff594e', prop: '🦡', idle: '가시 없이 느긋하게 누운 벌꿀오소리', attack: '몸에서 가시가 자라나 사방으로 발사. 두더지 상대 공격력 16', special: '더블 주사위 합 6 이하 · 하늘에 소환진이 열리고 광전사 헤더가 낙하', flow: ['오소리 가시 무장', '두더지 상대 16 공격', '더블 합 6 이하: 헤더 출현'] },
@@ -62,10 +62,10 @@ export function animationModeFor(mole, { phase = 'attack', opponentName = '', di
 }
 function layers(id) {
   let extra = '';
-  if(id==='jacob') extra += '<div class="mfx-orbit"><img class="mfx-toy mfx-toy-red" src="../assets/fx/toy-red.png" alt=""><img class="mfx-toy mfx-toy-green" src="../assets/fx/toy-green.png" alt=""></div><img class="mfx-ghost" src="../assets/fx/ghost-clown.png" alt=""><span class="mfx-star-eyes" aria-hidden="true">✴ ✴</span>';
+  if(id==='jacob') extra += '<div class="mfx-orbit"><img class="mfx-toy mfx-toy-red" src="../assets/fx/toy-red.png" alt=""><img class="mfx-toy mfx-toy-green" src="../assets/fx/toy-green.png" alt=""></div><img class="mfx-ghost" src="../assets/cards/jacob-terror.webp" alt=""><span class="mfx-star-eyes" aria-hidden="true">✴ ✴</span>';
   if(id==='header') extra += `${pose('attack','header-berserker')}${prop('money','mfx-money mfx-travel')}${prop('coin','mfx-header-coin mfx-travel')}`;
   if(id==='kimi') extra += `${prop('camera','mfx-camera mfx-travel')}<div class="mfx-flash"></div>${prop('guitar','mfx-concert mfx-travel')}`;
-  if(id==='harper') extra += `${prop('sun','mfx-baby-sun')}${prop('keyboard','mfx-keyboard mfx-travel')}`;
+  if(id==='harper') extra += `<img class="mfx-pose mfx-pose-attack" src="../assets/cards/harper-charge.webp" alt="">${prop('sun','mfx-baby-sun')}${prop('keyboard','mfx-keyboard mfx-travel')}`;
   if(id==='eden') extra += `${prop('crown','mfx-crown mfx-travel')}<div class="mfx-gold-aura"></div>`;
   if(id==='ian') extra += `${prop('flag','mfx-flag')}${prop('calculator','mfx-calculator mfx-travel')}<span class="mfx-roar" aria-hidden="true">으아아!</span>`;
   if(id==='kade') extra += `${prop('bone','mfx-bone mfx-swing')}${prop('shield','mfx-guard mfx-grow')}<span class="mfx-star-eyes">✴ ✴</span>`;
@@ -103,7 +103,13 @@ export function mountCombatCharacter(root, mole) {
   root.querySelector('.mfx-layers')?.remove();
   root.querySelector(':scope > img')?.classList.add('mfx-base-pose');
   root.classList.add('mfx-phase-idle');
-  root.insertAdjacentHTML('beforeend',layers(id));
+  mountIdleLayers(root, id);
+}
+// In combat only Andrew's three body poses belong to the idle animation.
+function mountIdleLayers(root, id) {
+  root.querySelector('.mfx-layers')?.remove();
+  if (id === 'andrew') root.insertAdjacentHTML('beforeend',
+    '<div class="mfx-layers" aria-hidden="true">'+pose('salute','andrew-salute')+pose('discipline','andrew-discipline')+'</div>');
 }
 export function animateCharacter(mole, {
   root, opponentName = '', phase = 'attack', diceSum = null, doubles = false,
@@ -112,6 +118,8 @@ export function animateCharacter(mole, {
   if (!root || !mole) return;
   if (!root.classList.contains('mfx-battle-root')) mountCombatCharacter(root, mole);
   const mode = animationModeFor(mole, {phase, opponentName, diceSum, doubles, previousDiceSum});
+  root.querySelector('.mfx-layers')?.remove();
+  root.insertAdjacentHTML('beforeend',layers(mole.id));
   root.style.setProperty('--mfx-duration', `${duration}ms`);
   root.classList.remove('mfx-phase-idle', 'mfx-phase-attack', 'mfx-phase-special');
   root.dataset.opponent = opponentName === '션' ? 'sean' : opponentName === '키미' ? 'kimi'
@@ -119,6 +127,7 @@ export function animateCharacter(mole, {
   void root.offsetWidth;
   root.classList.add('mfx-phase-' + mode);
   return () => {
+    mountIdleLayers(root, mole.id);
     root.classList.remove('mfx-phase-attack', 'mfx-phase-special');
     root.classList.add('mfx-phase-idle');
   };
