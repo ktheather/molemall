@@ -49,6 +49,7 @@
 <link rel="stylesheet" href="../src/character-fx.css?v=louis-20261126">
 <link rel="stylesheet" href="../src/character-dictionary.css?v=arena4"> <!-- MOLEMALL_CHARACTER_FX -->
 <link rel="stylesheet" href="../src/executive-frame.css?v=arena4">
+<link rel="stylesheet" href="../src/card-album.css">
 </head>
 <body>
 <header>
@@ -58,7 +59,10 @@
   <span class="count" id="count"></span>
   <label class="dev-toggle"><input type="checkbox" id="devToggle"> 개발용: 숨김 특이사항</label>
 </header>
-<div class="grid" id="grid"></div>
+<main class="album">
+  <nav class="album-controls" aria-label="앨범 페이지"><button id="prevPage" disabled>‹ 이전 장</button><output id="pageNumber" aria-live="polite"></output><button id="nextPage" disabled>다음 장 ›</button></nav>
+  <div class="binder"><div id="grid" class="album-spread"></div><div class="rings" aria-hidden="true"><i></i><i></i><i></i></div></div>
+</main>
 <div id="detail" hidden></div>
 <script type="module" src="../src/cards.js"></script>
 <script type="module" src="../src/character-dictionary.js?v=arena4"></script> <!-- MOLEMALL_CHARACTER_FX -->

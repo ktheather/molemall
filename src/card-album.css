@@ -1,0 +1,17 @@
+body {background:radial-gradient(ellipse at top,#463d36,#211d1c 70%);min-height:100vh}
+header,.album {max-width:1000px;margin-inline:auto}
+.album-controls {display:flex;align-items:center;justify-content:center;gap:18px;color:#f5eadb;margin:8px 0 14px}
+.album-controls button {background:#302c29;border:1px solid #9b8974;border-radius:20px;padding:7px 18px;color:#fff5e3;cursor:pointer;font:inherit;font-size:13px}
+.album-controls button:disabled {opacity:.4;cursor:default}
+.album-controls output {min-width:75px;text-align:center;font-size:13px}
+.binder {position:relative;padding:clamp(9px,2vw,22px);background:repeating-linear-gradient(125deg,#222 0 1px,#191919 1px 3px);border:4px double #67605a;border-radius:24px;box-shadow:0 18px 34px #0008,inset 0 0 0 4px #121212}
+.album-spread {display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch}
+.album-sheet {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,auto);padding:10px 16px;gap:4px;background:linear-gradient(110deg,#c9c7be,#e6e2d6 45%,#bcbbb2);border:1px solid #ebe9dd;border-radius:6px;box-shadow:0 3px #77776e,0 5px #d7d5ca;transform-origin:right center}
+.album-sheet:nth-child(even){transform-origin:left center}
+.album-sheet[hidden]{display:none}
+.pocket {position:relative;display:grid;place-items:center;padding:6px;min-width:0;border:1px dashed #aaa99e;border-radius:4px;box-shadow:inset 1px 1px 3px #fff9}
+.pocket::after {content:'';position:absolute;inset:1px;pointer-events:none;border-top:2px solid #fffc;border-bottom:2px solid #fff7;background:linear-gradient(119deg,transparent 63%,#fff2 68%,transparent 76%)}
+#grid .pocket .card {width:100%!important;min-height:0;height:auto!important;aspect-ratio:auto!important}
+.rings {pointer-events:none;position:absolute;inset:12% auto 12% 50%;width:4%;transform:translateX(-50%);display:flex;flex-direction:column;justify-content:space-between}
+.rings i {height:12px;border-radius:100px;background:linear-gradient(#484742,#fafcf6 33%,#acaea8 58%,#494840);box-shadow:0 3px 3px #0009}
+@media(max-width:700px){body{padding:8px}header{flex-wrap:wrap;gap:8px}.album-spread{grid-template-columns:1fr}.rings{left:11px;width:17px}.album-sheet{padding:8px 5px 8px 15px}.pocket{padding:4px}}

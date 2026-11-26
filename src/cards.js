@@ -1,3 +1,4 @@
+import { mountAlbum } from './card-album.js';
 // 카드 사전 — 실제 카드만 (placeholder 제외).
 // 숨김 특이사항(secret)은 개발용 토글(?dev=1 또는 우상단 스위치)을 켰을 때만 보여준다.
 const $ = id => document.getElementById(id);
@@ -37,6 +38,7 @@ let current = [];
 fetch('../data/cards.json', { cache: 'no-store' }).then(r => r.json()).then(j => {
   const moles = current = j.moles.filter(m => !m.placeholder);
   $('count').textContent = `${moles.length}장`;
-  $('grid').innerHTML = moles.length ? moles.map(c => cardHtml(c)).join('') : '<p class="empty">아직 카드가 없습니다.</p>';
+  $('grid').innerHTML = moles.length ? '' : '<p class="empty">아직 카드가 없습니다.</p>';
+  if (moles.length) mountAlbum(moles.map(c=>cardHtml(c)));
   for (const el of $('grid').querySelectorAll('.card')) el.onclick = () => openDetail(moles.find(m => m.id === el.dataset.id));
 });
