@@ -21,7 +21,7 @@ const rosterArt = {
 const rows = Object.keys(rosterArt);
 const portraitArt = {
   olivia: 'olivia-portrait', sally: 'sally-portrait', jacob: 'jacob-portrait',
-  harper: 'harper-portrait', z: 'z-portrait', ian: 'ian-portrait', kade: 'kade-portrait'
+  hailey: 'hailey-portrait', kimi: 'kimi-portrait', harper: 'harper-portrait', z: 'z-portrait', ian: 'ian-portrait', kade: 'kade-portrait'
 };
 const portraitUsesFrameArt = new Set(Object.keys(portraitArt));
 const spritePath = name => {
