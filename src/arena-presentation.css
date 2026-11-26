@@ -100,3 +100,9 @@
   .arena-field #arenaBoss.l-final-fighter {left:46%;bottom:30%;width:52%;height:65%;}
   .arena:is([data-active-mole="harper"],[data-active-mole="z"]) #arenaMole {left:-2%;width:44%;height:59%;}
 }
+
+/* Enforced live stage: den is never shown in combat. */
+.arena-field #molehill {display:none!important;visibility:hidden!important}
+.arena-field #arenaBoss,.arena-field #arenaBoss.pure-brothers-fighter,.arena-field #arenaBoss.l-final-fighter{left:49%!important;bottom:30%!important;width:48%!important;height:67%!important}
+.arena-field #arenaMole{left:3%!important;bottom:2%!important;width:35%!important;height:56%!important}
+@media(max-width:740px){.arena-field #arenaBoss,.arena-field #arenaBoss.pure-brothers-fighter,.arena-field #arenaBoss.l-final-fighter{left:46%!important;bottom:30%!important;width:52%!important;height:65%!important}.arena-field #arenaMole{left:1%!important;bottom:2%!important;width:40%!important;height:54%!important}}
