@@ -21,15 +21,15 @@ const rosterArt = {
 const rows = Object.keys(rosterArt);
 const portraitArt = {
   olivia: 'olivia-portrait', sally: 'sally-portrait', jacob: 'jacob-portrait',
-  harper: 'harper-portrait'
+  harper: 'harper-portrait', z: 'z-portrait', ian: 'ian-portrait', kade: 'kade-portrait'
 };
-const portraitUsesFrameArt = new Set(['sally', 'harper', 'olivia', 'jacob']);
+const portraitUsesFrameArt = new Set(Object.keys(portraitArt));
 const spritePath = name => {
   if (name.startsWith('@')) {
     const asset = name.slice(1);
     return `../assets/${['toy-red','toy-green','ghost-clown'].includes(asset) ? 'fx' : 'moles/plush'}/${asset}.png`;
   }
-  if (['harper-portrait','harper-typing','harper-charge','sally-portrait','olivia-nap','olivia-portrait','jacob-portrait','jacob-terror'].includes(name)) {
+  if (name.endsWith('-portrait') || ['harper-portrait','harper-typing','harper-charge','sally-portrait','olivia-nap','olivia-portrait','jacob-portrait','jacob-terror'].includes(name)) {
     return `../assets/cards/${name}.webp`;
   }
   return `../assets/fx/plush/${name}.webp`;

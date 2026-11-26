@@ -287,3 +287,8 @@
   .mfx-d3-scene[data-state="attack"] .mfx-d3-scene-art { height: clamp(64px, 12dvh, 128px); }
   .mfx-d3-scene[data-state="special"] .mfx-d3-scene-art { height: clamp(55px, 9dvh, 100px); }
 }
+
+:is(.mfx-card-tile[data-id="z"],.mfx-card-tile[data-id="ian"],.mfx-card-tile[data-id="kade"]) .mfx-cover > .mfx-portrait-art,
+:is([data-character="z"],[data-character="ian"],[data-character="kade"]) .mfx-d3-portrait > .mfx-portrait-art {
+  object-fit:cover; object-position:center bottom;
+}
