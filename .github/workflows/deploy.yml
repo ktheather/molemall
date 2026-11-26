@@ -23,6 +23,14 @@ jobs:
         run: |
           test -f index.html || { echo "Missing root index.html."; exit 1; }
 
+      - name: Validate arcade scripts and assets
+        run: |
+          node --check arcade/game.js
+          test -f arcade/index.html
+          test -f arcade/style.css
+          grep -q 'href="/arcade/"' index.html
+          grep -q '/arcade/game.js' arcade/index.html
+
       - name: Prepare deploy directory (exclude archives and Git metadata)
         run: |
           mkdir -p deploy-dist
@@ -34,3 +42,12 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Smoke test production arcade
+        run: |
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors --max-time 20 \
+            "https://molemall-beta.pages.dev/arcade/?commit=${GITHUB_SHA}" -o /tmp/molemall-arcade.html
+          grep -q "PLUSH ARCADE" /tmp/molemall-arcade.html
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors --max-time 20 \
+            "https://molemall-beta.pages.dev/arcade/game.js?commit=${GITHUB_SHA}" -o /tmp/molemall-arcade.js
+          grep -q "두더지 두들기기" /tmp/molemall-arcade.js
