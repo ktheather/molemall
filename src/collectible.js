@@ -19,11 +19,6 @@ const rosterArt = {
   henry: [['henry-idle'], ['henry-charge','glasses'], ['henry-coat']]
 };
 const rows = Object.keys(rosterArt);
-const portraitArt = {
-  olivia: 'olivia-portrait', sally: 'sally-portrait', jacob: 'jacob-portrait',
-  hailey: 'hailey-portrait', kimi: 'kimi-portrait', harper: 'harper-portrait', z: 'z-portrait', ian: 'ian-portrait', kade: 'kade-portrait'
-};
-const portraitUsesFrameArt = new Set(Object.keys(portraitArt));
 const spritePath = name => {
   if (name.startsWith('@')) {
     const asset = name.slice(1);
@@ -35,8 +30,9 @@ const spritePath = name => {
   return `../assets/fx/plush/${name}.webp`;
 };
 function portraitSource(m) {
- const image = portraitArt[m.id] || rosterArt[m.id]?.[0]?.[0];
- return image ? spritePath(image) : `../${m.image}`;
+ if (!rosterArt[m.id]) return `../${m.image}`;
+ const name = m.id === 'olivia' ? 'olivia-bust' : `${m.id}-portrait`;
+ return `../assets/cards/${name}.webp`;
 }
 function paintedBackdrop(id, state) {
  const index = rows.indexOf(id);
@@ -48,8 +44,7 @@ function paintedBackdrop(id, state) {
 }
 
 function portrait(m, alt) {
- const cls = portraitUsesFrameArt.has(m.id) ? 'mfx-portrait-art' : 'mfx-portrait-sprite';
- return `${paintedBackdrop(m.id,'idle')}<img class="${cls}" src="${esc(portraitSource(m))}" alt="${esc(alt)}">`;
+ return `${paintedBackdrop(m.id,'idle')}<img class="mfx-portrait-art" src="${esc(portraitSource(m))}" alt="${esc(alt)}">`;
 }
 
 const heading=m=>m.nickname||m.trait||'두더지 카드';

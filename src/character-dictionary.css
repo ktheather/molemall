@@ -297,3 +297,6 @@
 :is([data-character="harper"],[data-character="z"]) :is(.mfx-d3-portrait > img,.mfx-composite-actor,.mfx-base-pose) {
   scale:1.3; transform-origin:48% 38%;
 }
+
+/* Dedicated busts meet the lower edge of every collectible frame. */
+.mfx-card-tile .mfx-cover > .mfx-portrait-art, .mfx-d3-portrait > .mfx-portrait-art {object-position:center bottom;}
