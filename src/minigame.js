@@ -174,6 +174,8 @@ function spawnBoss(lv) {
   arena.dataset.level = String(boss.level);
 
   arena.dataset.boss = boss.id;
+  // Boss encounter begins here; hide only the den illustration, never its HP or poison effects.
+  $('molehill').hidden = true;
   document.querySelector('.scene-label').textContent = boss.id === 'taetiseo' ? `LV.${String(boss.level).padStart(2, '0')} · 쓰레기장` : boss.id === 'pure_brothers' ? `LV.${String(boss.level).padStart(2, '0')} · 전산실` : boss.id === 'l' ? `LV.${String(boss.level).padStart(2, '0')} · 뱀의 극장` : '';
   updateBossPath();
   $('arenaBoss').classList.toggle('dinosaur-fighter',boss.id==='dinosaur');
@@ -263,12 +265,12 @@ function sizeMolehill() {
   if (sprite.naturalWidth) {
     width = Math.min(width, sprite.clientHeight * sprite.naturalWidth / sprite.naturalHeight);
   }
-  // Match the rendered boss size rather than leaving the den at icon scale.
+  // Den art is 100% of the boss's visible width when shown.
+  // Its visibility is controlled by the battle state, not by its size.
   const field = document.querySelector('.arena-field');
   const bossBox = $('arenaBoss');
   const measured = Math.max(width || 0, bossBox.clientWidth * 0.68);
-  const target = Math.min(field.clientWidth * 0.44, Math.max(180, measured * 0.72));
-  field.style.setProperty('--den-width', Math.round(target) + 'px');
+  field.style.setProperty('--den-width', Math.round(measured) + 'px');
 }
 new ResizeObserver(sizeMolehill).observe($('arenaBossArt'));
 $('arenaBossArt').addEventListener('load', sizeMolehill, true);
@@ -414,7 +416,7 @@ async function animateCombat(attacker, damage, targetName, onImpact, {phase='att
   const impactTime = Math.round(hasCharacterFx ? duration * .68 : 340);
   const attackMs = hasCharacterFx ? duration : 800;
   const ranged = hasCharacterFx && art.querySelector('.mfx-travel, .mfx-quill-track, .mfx-aiden-jellyfish');
-  const fraction = ranged ? .16 : .72;
+  const fraction = ranged ? .12 : .86; // close-range diagonal contact; projectiles cross the gap
   const lunge = actor.animate([{translate:'0 0'}, {
     translate:`${dx*fraction}px ${dy*fraction}px`, offset:impactTime/attackMs
   }, {translate:'0 0'}], {duration:attackMs, easing:'ease-in-out'});
