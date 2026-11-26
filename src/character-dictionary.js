@@ -23,7 +23,7 @@ function compose(id, state, names) {
 
 const oliviaMatchups = [['kimi','키미','분홍 하트 연기'],['sean','션','거대화·별빛 안광']];
 function matchupArt(key, label, effect) {
- return `<span class="mfx-olivia-matchup">
+ return `<span class="mfx-olivia-matchup">${paintedBackdrop('olivia',key==='kimi'?'attack':'special')}
   <img src="../assets/cards/olivia-${key}.webp" alt="${label} 상대 · ${effect}">
   <b>vs ${label} · ${effect}</b></span>`;
 }
@@ -62,7 +62,7 @@ function renderMode() {
  if (mount) {
   const previewMode = selected.id==='olivia' && mode!=='idle' ? 'special' : mode;
   mount.innerHTML=createScene(selected,{mode:previewMode,opponentName:opponent});
-  mount.firstElementChild.insertAdjacentHTML('afterbegin', paintedBackdrop(selected.id,mode));
+  mount.firstElementChild.insertAdjacentHTML('afterbegin', paintedBackdrop(selected.id,selected.id==='olivia' && mode!=='idle' ? (opponent==='션'?'special':'attack') : mode));
  }
  const title=$('#mfx-state-caption');if(title)title.textContent=`${modes[mode]} · ${f[mode]||''}`;
  layer.querySelectorAll('.mfx-d3-scene').forEach(button =>

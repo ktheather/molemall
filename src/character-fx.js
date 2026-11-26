@@ -69,7 +69,7 @@ function layers(id) {
   if(id==='eden') extra += `${prop('crown','mfx-crown mfx-travel')}<div class="mfx-gold-aura"></div>`;
   if(id==='ian') extra += `${prop('flag','mfx-flag')}${prop('calculator','mfx-calculator mfx-travel')}<span class="mfx-roar" aria-hidden="true">으아아!</span>`;
   if(id==='kade') extra += `${prop('bone','mfx-bone mfx-swing')}${prop('shield','mfx-guard mfx-grow')}<span class="mfx-star-eyes">✴ ✴</span>`;
-  if(id==='olivia') extra += `${prop('cake','mfx-cake mfx-travel')}${prop('heart','mfx-hearts mfx-travel')}<span class="mfx-star-eyes">✴ ✴</span>`;
+  if(id==='olivia') extra += `${prop('cake','mfx-cake mfx-travel')}${prop('heart','mfx-hearts mfx-travel')}`;
   if(id==='sally') extra += `${pose('attack','sally-swing')}${pose('special','sally-drop')}${prop('hammer','mfx-sally-hammer mfx-swing')}${prop('diamond','mfx-sally-diamond mfx-drop')}`;
   if(id==='aiden') extra += `${pose('attack','aiden-bubbles')}${pose('special','aiden-summon')}<span class="mfx-aiden-flowers" aria-hidden="true">✿ ✿ ✿</span><span class="mfx-aiden-bubbles" aria-hidden="true">◌ ○ ◯ ○</span><img class="mfx-aiden-jellyfish" src="../assets/fx/aiden-jellyfish.webp" alt=""><span class="mfx-aiden-shock" aria-hidden="true">⚡ ✦ ⚡</span>`;
   if(id==='hailey') extra += `${prop('apple','mfx-silver-apple')}${prop('glasses','mfx-glasses')}${prop('apple','mfx-apple-throw mfx-travel')}${prop('tree','mfx-apple-tree mfx-grow')}`;
@@ -80,10 +80,14 @@ function layers(id) {
   if(!extra) extra += '<div class="mfx-magic" aria-hidden="true">✧ ✨ ✧</div>';
   return `<div class="mfx-layers" aria-hidden="true">${extra}<span class="mfx-attack-swish"></span></div>`;
 }
+function oliviaPose(mode, opponent) {
+  if (mode === 'idle') return 'nap';
+  return opponent === '션' ? 'sean' : opponent === '키미' ? 'kimi' : 'portrait';
+}
 export function createScene(mole, { mode = 'idle', opponentName = '', compact = false }={}) {
   const id = CHARACTER_FX[mole?.id] ? mole.id : 'generic';
   const fx=CHARACTER_FX[id];
-  const imgSrc = characterPortrait(mole);
+  const imgSrc = id === 'olivia' ? `assets/cards/olivia-${oliviaPose(mode, opponentName)}.webp` : characterPortrait(mole);
   const specialOpponent = opponentName === '션' ? 'sean' : opponentName === '키미' ? 'kimi' : startsWithTie(opponentName) ? 'tie' : 'other';
   return `<div class="mfx-scene mfx-${id} mfx-phase-${mode}${compact?' mfx-compact':''}" data-opponent="${specialOpponent}" style="--mfx-accent:${fx?.accent || '#e9b368'}">
       <div class="mfx-floor"></div><div class="mfx-sparkles" aria-hidden="true">✦　✧　✦</div>
@@ -120,6 +124,9 @@ export function animateCharacter(mole, {
   const mode = animationModeFor(mole, {phase, opponentName, diceSum, doubles, previousDiceSum});
   root.querySelector('.mfx-layers')?.remove();
   root.insertAdjacentHTML('beforeend',layers(mole.id));
+  const actor = root.querySelector(':scope > .mfx-base-pose');
+  const restingSrc = actor?.src;
+  if (actor && mole.id === 'olivia') actor.src = `../assets/cards/olivia-${oliviaPose(mode, opponentName)}.webp`;
   root.style.setProperty('--mfx-duration', `${duration}ms`);
   root.classList.remove('mfx-phase-idle', 'mfx-phase-attack', 'mfx-phase-special');
   root.dataset.opponent = opponentName === '션' ? 'sean' : opponentName === '키미' ? 'kimi'
@@ -127,6 +134,7 @@ export function animateCharacter(mole, {
   void root.offsetWidth;
   root.classList.add('mfx-phase-' + mode);
   return () => {
+    if (actor && mole.id === 'olivia') actor.src = restingSrc;
     mountIdleLayers(root, mole.id);
     root.classList.remove('mfx-phase-attack', 'mfx-phase-special');
     root.classList.add('mfx-phase-idle');
