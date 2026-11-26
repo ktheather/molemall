@@ -263,7 +263,12 @@ function sizeMolehill() {
   if (sprite.naturalWidth) {
     width = Math.min(width, sprite.clientHeight * sprite.naturalWidth / sprite.naturalHeight);
   }
-  document.querySelector('.arena-field').style.setProperty('--den-width', width / 2 + 'px');
+  // Match the rendered boss size rather than leaving the den at icon scale.
+  const field = document.querySelector('.arena-field');
+  const bossBox = $('arenaBoss');
+  const measured = Math.max(width || 0, bossBox.clientWidth * 0.68);
+  const target = Math.min(field.clientWidth * 0.44, Math.max(180, measured * 0.72));
+  field.style.setProperty('--den-width', Math.round(target) + 'px');
 }
 new ResizeObserver(sizeMolehill).observe($('arenaBossArt'));
 $('arenaBossArt').addEventListener('load', sizeMolehill, true);
