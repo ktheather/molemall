@@ -38,12 +38,12 @@
 .card-back span {border-block:1px solid #c1945f;padding:8px;font-weight:900}
 #arenaMole::before {display:none}
 #molehill {
-  position:absolute;left:19%;bottom:0;width:var(--den-width,32%);height:auto;max-height:52%;object-fit:contain;object-position:center bottom;
+  position:absolute;left:19%;bottom:0;width:var(--den-width,32%);height:auto;object-fit:contain;object-position:center bottom;
   translate:-50% 0;z-index:1;pointer-events:none;
 }
-.arena-field #arenaMole {bottom:calc(2% + var(--den-width,0px)*.18)}
+.arena-field #arenaMole {bottom:3%}
 
-.arena:not([data-active-mole]) #arenaMoleName {top:auto;bottom:calc(0px - var(--den-width,0px)*.23)}
+.arena:not([data-active-mole]) #arenaMoleName {top:100%;bottom:auto}
 .arena-field .mfx-phase-attack .mfx-layers .mfx-swing {animation-name:arena-swing!important}
 @keyframes arena-swing {
   0% {opacity:0;transform:translate(-72%,-72%) rotate(-112deg) scale(.28)}
@@ -79,4 +79,24 @@
 @media(max-width:740px){
   .arena-field #arenaBoss {bottom:7%;height:86%;}
   #molehill {max-height:48%;}
+}
+
+/* Diagonal combat staging: player foreground left, boss elevated rear-right. */
+.arena-field #arenaMole {left:3%;bottom:2%;width:34%;height:56%;z-index:5;}
+.arena-field #arenaBoss,
+.arena-field #arenaBoss.pure-brothers-fighter,
+.arena-field #arenaBoss.l-final-fighter {
+  left:49%;bottom:29%;width:49%;height:67%;z-index:3;
+}
+.arena:is([data-active-mole="harper"],[data-active-mole="z"]) #arenaMole {
+  left:0;bottom:2%;width:41%;height:60%;
+}
+/* A started encounter shows only the combatants; the den remains a 100% size asset. */
+#molehill[hidden], .arena[data-boss] #molehill {display:none!important;}
+@media(max-width:740px){
+  .arena-field #arenaMole {left:0;bottom:2%;width:41%;height:53%;}
+  .arena-field #arenaBoss,
+  .arena-field #arenaBoss.pure-brothers-fighter,
+  .arena-field #arenaBoss.l-final-fighter {left:46%;bottom:30%;width:52%;height:65%;}
+  .arena:is([data-active-mole="harper"],[data-active-mole="z"]) #arenaMole {left:-2%;width:44%;height:59%;}
 }
