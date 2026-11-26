@@ -300,3 +300,22 @@
 
 /* Dedicated busts meet the lower edge of every collectible frame. */
 .mfx-card-tile .mfx-cover > .mfx-portrait-art, .mfx-d3-portrait > .mfx-portrait-art {object-position:center bottom;}
+
+/* Dictionary grid: face framing is independent of combat scale and accessories. */
+#grid .mfx-card-tile .mfx-cover {flex:none; height:auto; min-height:0; aspect-ratio:1; width:100%;}
+#grid .mfx-card-tile .mfx-cover > img.mfx-portrait-art {inset:auto!important;left:var(--face-x)!important;top:var(--face-y)!important;width:var(--face-width)!important;height:auto!important;max-width:none!important;max-height:none!important;margin:0!important;scale:1;transform:none!important;object-fit:contain;}
+#grid [data-id="aiden"] {--face-width:98.618%;--face-x:5.930%;--face-y:2.400%;}
+#grid [data-id="andrew"] {--face-width:158.222%;--face-x:-29.111%;--face-y:-17.936%;}
+#grid [data-id="eden"] {--face-width:117.686%;--face-x:-15.095%;--face-y:1.791%;}
+#grid [data-id="hailey"] {--face-width:109.538%;--face-x:-8.877%;--face-y:-0.906%;}
+#grid [data-id="harper"] {--face-width:130.129%;--face-x:-32.144%;--face-y:-8.786%;}
+#grid [data-id="header"] {--face-width:89.000%;--face-x:5.500%;--face-y:4.974%;}
+#grid [data-id="henry"] {--face-width:84.267%;--face-x:9.183%;--face-y:2.389%;}
+#grid [data-id="ian"] {--face-width:121.709%;--face-x:5.500%;--face-y:-11.985%;}
+#grid [data-id="jacob"] {--face-width:99.903%;--face-x:-5.571%;--face-y:-18.064%;}
+#grid [data-id="kade"] {--face-width:136.897%;--face-x:-23.582%;--face-y:-29.283%;}
+#grid [data-id="kimi"] {--face-width:100.282%;--face-x:1.113%;--face-y:0.735%;}
+#grid [data-id="l"] {--face-width:94.472%;--face-x:6.602%;--face-y:2.507%;}
+#grid [data-id="olivia"] {--face-width:124.912%;--face-x:-8.553%;--face-y:-18.758%;}
+#grid [data-id="sally"] {--face-width:108.308%;--face-x:2.954%;--face-y:-35.923%;}
+#grid [data-id="z"] {--face-width:110.388%;--face-x:-0.709%;--face-y:-2.105%;}
